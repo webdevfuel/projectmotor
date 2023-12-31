@@ -36,6 +36,7 @@ func main() {
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 	r.Get("/login", h.Login)
 	r.Get("/oauth/github/login", h.OAuthGitHubLogin)
+	r.Get("/oauth/github/callback", h.OAuthGitHubCallback)
 	r.Group(protectedRouter(h))
 	http.ListenAndServe("localhost:3000", r)
 }
