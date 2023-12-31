@@ -5,6 +5,8 @@ go 1.21.5
 require (
 	github.com/flosch/pongo2/v6 v6.0.0 // indirect
 	github.com/go-chi/chi/v5 v5.0.11 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
+	github.com/gorilla/sessions v1.2.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/pgx/v5 v5.5.1 // indirect
