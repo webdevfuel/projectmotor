@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	"github.com/webdevfuel/projectmotor/database"
@@ -21,4 +23,8 @@ func NewHandler(options HandlerOptions) *Handler {
 	return &Handler{
 		userService: userService,
 	}
+}
+
+func (h Handler) GetSessionStore(r *http.Request) (*sessions.Session, error) {
+	return h.store.Get(r, "_projectmotor_session")
 }
