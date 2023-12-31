@@ -47,3 +47,10 @@ func main() {
 	r.Get("/login", h.Login)
 	http.ListenAndServe("localhost:3000", r)
 }
+
+// Redirect to public auth route
+//
+// Use this when session user doesn't exist
+func redirectToLogin(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "http://localhost:3000/login", http.StatusSeeOther)
+}
