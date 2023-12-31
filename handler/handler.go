@@ -1,9 +1,21 @@
 package handler
 
-type Handler struct{}
+import (
+	"github.com/jmoiron/sqlx"
+	"github.com/webdevfuel/projectmotor/db"
+)
 
-type HandlerOptions struct{}
+type Handler struct {
+	userService *db.UserService
+}
+
+type HandlerOptions struct {
+	DB *sqlx.DB
+}
 
 func NewHandler(options HandlerOptions) *Handler {
-	return &Handler{}
+	userService := db.NewUserService(options.DB)
+	return &Handler{
+		userService: userService,
+	}
 }
