@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/sessions"
+	"github.com/webdevfuel/projectmotor/auth"
 	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/handler"
 	"github.com/webdevfuel/projectmotor/template"
@@ -53,4 +55,33 @@ func main() {
 // Use this when session user doesn't exist
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "http://localhost:3000/login", http.StatusSeeOther)
+}
+
+// Protected context
+//
+// Middleware checks if user exists within current session
+func ProtectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			session, err := h.GetSessionStore(r)
+			// redirect in case of error
+			if err != nil {
+				redirectToLogin(w, r)
+				return
+			}
+			user := session.Values["user"]
+			// redirect in case of missing user
+			if user == nil {
+				redirectToLogin(w, r)
+				return
+			}
+			// check if user is db.User
+			ctx := r.Context()
+			if user, ok := user.(database.User); ok {
+				ctx = context.WithValue(ctx, auth.UserIDKey{}, user.ID)
+			}
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}
+		return http.HandlerFunc(fn)
+	}
 }
