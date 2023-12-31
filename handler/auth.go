@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"net/http"
 
 	"github.com/flosch/pongo2/v6"
@@ -21,4 +23,13 @@ var config = &oauth2.Config{
 
 func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 	template.Login.ExecuteWriter(pongo2.Context{}, w)
+}
+
+func generateCSRFToken(n int) (string, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
 }
