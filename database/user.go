@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
