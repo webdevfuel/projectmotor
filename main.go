@@ -34,20 +34,30 @@ func main() {
 	r.Use(middleware.Logger)
 	fs := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		// NOTE ->> only for testing, remove after actual interactions with database
-		message, err := database.GetMessage()
-		if err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-		// <<- NOTE
-		template.Dashboard.ExecuteWriter(pongo2.Context{
-			"message": message,
-		}, w)
-	})
 	r.Get("/login", h.Login)
+	r.Group(protectedRouter(h))
 	http.ListenAndServe("localhost:3000", r)
+}
+
+// Router with user ensured
+//
+// Add routes here where user has to be logged in
+func protectedRouter(h *handler.Handler) func(chi.Router) {
+	return func(r chi.Router) {
+		r.Use(ProtectedCtx(h))
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			// NOTE ->> only for testing, remove after actual interactions with database
+			message, err := database.GetMessage()
+			if err != nil {
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				return
+			}
+			// <<- NOTE
+			template.Dashboard.ExecuteWriter(pongo2.Context{
+				"message": message,
+			}, w)
+		})
+	}
 }
 
 // Redirect to public auth route
