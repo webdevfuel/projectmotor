@@ -25,6 +25,27 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 	template.Login.ExecuteWriter(pongo2.Context{}, w)
 }
 
+func (h Handler) OAuthGitHubLogin(w http.ResponseWriter, r *http.Request) {
+	state, err := generateCSRFToken(16)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	session, err := h.GetSessionStore(r)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	session.Values["state"] = state
+	err = session.Save(r, w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	url := config.AuthCodeURL(state)
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
 func generateCSRFToken(n int) (string, error) {
 	b := make([]byte, n)
 	_, err := rand.Read(b)
