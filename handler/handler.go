@@ -21,6 +21,7 @@ type HandlerOptions struct {
 func NewHandler(options HandlerOptions) *Handler {
 	userService := database.NewUserService(options.DB)
 	return &Handler{
+		store:       options.Store,
 		userService: userService,
 	}
 }
