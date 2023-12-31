@@ -1,16 +1,19 @@
 package handler
 
 import (
+	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	"github.com/webdevfuel/projectmotor/database"
 )
 
 type Handler struct {
 	userService *database.UserService
+	store       *sessions.CookieStore
 }
 
 type HandlerOptions struct {
-	DB *sqlx.DB
+	DB    *sqlx.DB
+	Store *sessions.CookieStore
 }
 
 func NewHandler(options HandlerOptions) *Handler {
