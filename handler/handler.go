@@ -10,8 +10,9 @@ import (
 )
 
 type Handler struct {
-	userService *database.UserService
-	store       *sessions.CookieStore
+	userService    *database.UserService
+	accountService *database.AccountService
+	store          *sessions.CookieStore
 }
 
 type HandlerOptions struct {
@@ -21,9 +22,11 @@ type HandlerOptions struct {
 
 func NewHandler(options HandlerOptions) *Handler {
 	userService := database.NewUserService(options.DB)
+	accountService := database.NewAccountService(options.DB)
 	return &Handler{
-		store:       options.Store,
-		userService: userService,
+		store:          options.Store,
+		userService:    userService,
+		accountService: accountService,
 	}
 }
 
