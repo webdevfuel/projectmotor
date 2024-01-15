@@ -5,14 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/flosch/pongo2/v6"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/sessions"
 	"github.com/webdevfuel/projectmotor/auth"
 	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/handler"
-	"github.com/webdevfuel/projectmotor/template"
 )
 
 var store = sessions.NewCookieStore([]byte("9eb88ac21007908b8a192a6b842ad097622882a84560ddf1ba0c27702836a9b4"))
@@ -47,18 +45,7 @@ func main() {
 func protectedRouter(h *handler.Handler) func(chi.Router) {
 	return func(r chi.Router) {
 		r.Use(ProtectedCtx(h))
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			// NOTE ->> only for testing, remove after actual interactions with database
-			message, err := database.GetMessage()
-			if err != nil {
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
-			// <<- NOTE
-			template.Dashboard.ExecuteWriter(pongo2.Context{
-				"message": message,
-			}, w)
-		})
+		r.Get("/", h.Dashboard)
 	}
 }
 
@@ -81,16 +68,21 @@ func ProtectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
 				redirectToLogin(w, r)
 				return
 			}
-			user := session.Values["user"]
+			userID := session.Values["userID"]
 			// redirect in case of missing user
-			if user == nil {
+			if userID == nil {
 				redirectToLogin(w, r)
 				return
 			}
 			// check if user is db.User
 			ctx := r.Context()
-			if user, ok := user.(database.User); ok {
-				ctx = context.WithValue(ctx, auth.UserIDKey{}, user.ID)
+			if userID, ok := userID.(int32); ok {
+				user, _, err := h.UserService.GetUserByID(userID)
+				if err != nil {
+					redirectToLogin(w, r)
+					return
+				}
+				ctx = context.WithValue(ctx, auth.UserKey{}, user)
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
