@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"log"
 	"net/http"
 
@@ -67,7 +68,7 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		log.Println("primary email: ", data.PrimaryEmail)
 		return
 	}
-	fail(w, err, http.StatusUnauthorized)
+	fail(w, errors.New("session and query state mismatch"), http.StatusUnauthorized)
 }
 
 func generateCSRFToken(n int) (string, error) {
