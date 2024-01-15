@@ -85,7 +85,7 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// Create account within transaction
-			account, err := h.accountService.CreateAccount(tx, data.ID, user.ID, token.AccessToken)
+			_, err = h.accountService.CreateAccount(tx, data.ID, user.ID, token.AccessToken)
 			if err != nil {
 				fail(w, err, http.StatusInternalServerError)
 				return
