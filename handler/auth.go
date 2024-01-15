@@ -9,6 +9,7 @@ import (
 
 	"github.com/flosch/pongo2/v6"
 	"github.com/gorilla/sessions"
+	"github.com/webdevfuel/projectmotor/auth"
 	"github.com/webdevfuel/projectmotor/github"
 	"github.com/webdevfuel/projectmotor/template"
 )
@@ -65,7 +66,7 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Check if account with ID exists
-		_, exists, err := h.accountService.GetAccountByID(data.ID)
+		account, exists, err := h.AccountService.GetAccountByID(data.ID)
 		if err != nil {
 			fail(w, err, http.StatusInternalServerError)
 			return
@@ -79,13 +80,13 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			// Create user within transaction
-			user, err := h.userService.CreateUser(tx, data.PrimaryEmail)
+			user, err := h.UserService.CreateUser(tx, data.PrimaryEmail)
 			if err != nil {
 				fail(w, err, http.StatusInternalServerError)
 				return
 			}
 			// Create account within transaction
-			_, err = h.accountService.CreateAccount(tx, data.ID, user.ID, token.AccessToken)
+			_, err = h.AccountService.CreateAccount(tx, data.ID, user.ID, token.AccessToken)
 			if err != nil {
 				fail(w, err, http.StatusInternalServerError)
 				return
@@ -96,6 +97,15 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 				fail(w, err, http.StatusInternalServerError)
 				return
 			}
+			err = auth.SetUserSession(w, r, user.ID, session)
+			if err != nil {
+				fail(w, err, http.StatusInternalServerError)
+			}
+		}
+		err = auth.SetUserSession(w, r, account.UserID, session)
+		if err != nil {
+			fail(w, err, http.StatusInternalServerError)
+			return
 		}
 		return
 	}
