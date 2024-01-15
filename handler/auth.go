@@ -5,7 +5,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/flosch/pongo2/v6"
@@ -57,15 +56,47 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 			fail(w, err, http.StatusInternalServerError)
 			return
 		}
+		// Initialise github.GitHubOAuth2 instance
 		gh := github.New(token.AccessToken)
+		// Fetch data from GitHub's API
 		data, err := gh.GetData()
 		if err != nil {
 			fail(w, err, http.StatusInternalServerError)
 			return
 		}
-		log.Println("token: ", token.AccessToken)
-		log.Println("id: ", data.ID)
-		log.Println("primary email: ", data.PrimaryEmail)
+		// Check if account with ID exists
+		_, exists, err := h.accountService.GetAccountByID(data.ID)
+		if err != nil {
+			fail(w, err, http.StatusInternalServerError)
+			return
+		}
+		if !exists {
+			// Begin transaction
+			tx, err := h.BeginTx(r.Context())
+			defer tx.Rollback()
+			if err != nil {
+				fail(w, err, http.StatusInternalServerError)
+				return
+			}
+			// Create user within transaction
+			user, err := h.userService.CreateUser(tx, data.PrimaryEmail)
+			if err != nil {
+				fail(w, err, http.StatusInternalServerError)
+				return
+			}
+			// Create account within transaction
+			account, err := h.accountService.CreateAccount(tx, data.ID, user.ID, token.AccessToken)
+			if err != nil {
+				fail(w, err, http.StatusInternalServerError)
+				return
+			}
+			// Commit transaction
+			err = tx.Commit()
+			if err != nil {
+				fail(w, err, http.StatusInternalServerError)
+				return
+			}
+		}
 		return
 	}
 	fail(w, errors.New("session and query state mismatch"), http.StatusUnauthorized)
