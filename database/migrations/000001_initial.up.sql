@@ -6,8 +6,8 @@ CREATE TABLE "users" (
 );
 
 CREATE TABLE "accounts" (
+    "id" integer PRIMARY KEY,
     "user_id" integer NOT NULL,
-    "account_id" text PRIMARY KEY,
     "access_token" text NOT NULL,
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id)
 );
