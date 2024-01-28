@@ -3,7 +3,7 @@ version: '3'
 tasks:
   migrate-create:
     cmds:
-      - 'migrate create -ext sql -dir database/migrations -seq initial {{.CLI_ARGS}}'
+      - 'migrate create -ext sql -dir database/migrations -seq {{.CLI_ARGS}}'
     silent: true
   migrate-up:
     cmds:
