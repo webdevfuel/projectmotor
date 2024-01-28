@@ -1,0 +1,15 @@
+{% extends "layouts/dashboard/index.html" %}
+{% block dashboard %}
+    <div class="flex items-center justify-between">
+        <h1 class="dark:text-white text-3xl font-bold">Projects</h1>
+    </div>
+    <div class="mt-6 space-y-4">
+        {% for Project in Projects %}
+            <div class="flex items-center justify-between border border-gray-200 dark:border-gray-700 w-full p-4 rounded-lg shadow-md">
+                <div class="flex items-center space-x-2.5">
+                    <p class="dark:text-white">{{ Project.Title }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
