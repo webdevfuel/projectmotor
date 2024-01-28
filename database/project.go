@@ -25,3 +25,12 @@ func NewProjectService(db *sqlx.DB) *ProjectService {
 		db: db,
 	}
 }
+
+func (s ProjectService) Create(title string, ownerID int32) (Project, error) {
+	var project Project
+	err := s.db.Get(&project, "insert into projects (title, owner_id) values ($1, $2) returning *", title, ownerID)
+	if err != nil {
+		return Project{}, err
+	}
+	return project, nil
+}
