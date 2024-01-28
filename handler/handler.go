@@ -14,6 +14,7 @@ import (
 type Handler struct {
 	UserService    *database.UserService
 	AccountService *database.AccountService
+	ProjectService *database.ProjectService
 	Store          *sessions.CookieStore
 	DB             *sqlx.DB
 }
@@ -26,11 +27,13 @@ type HandlerOptions struct {
 func NewHandler(options HandlerOptions) *Handler {
 	userService := database.NewUserService(options.DB)
 	accountService := database.NewAccountService(options.DB)
+	projectService := database.NewProjectService(options.DB)
 	return &Handler{
 		Store:          options.Store,
 		DB:             options.DB,
 		UserService:    userService,
 		AccountService: accountService,
+		ProjectService: projectService,
 	}
 }
 
