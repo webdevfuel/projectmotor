@@ -22,3 +22,11 @@ func (h Handler) GetProjects(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h Handler) NewProject(w http.ResponseWriter, r *http.Request) {
+	err := template.ProjectNew.ExecuteWriter(pongo2.Context{}, w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+}
