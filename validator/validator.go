@@ -23,8 +23,8 @@ type Validated struct {
 
 type ValidatedSlice []Validated
 
-func (vp ValidatedSlice) GetByKey(key string) Validated {
-	for _, v := range vp {
+func (vs ValidatedSlice) GetByKey(key string) Validated {
+	for _, v := range vs {
 		if v.Key == key {
 			return v
 		}
