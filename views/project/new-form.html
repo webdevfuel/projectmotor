@@ -1,12 +1,12 @@
 <form class="mt-6 space-y-4" hx-post="/projects" hx-swap="outerHTML">
     <div>
         <label for="title" class="label">Title (required)</label>
-        <input type="text" value="" id="title" name="title" class="input" />
+        <input type="text" value='{{ Errors.GetByKey("Title").Value }}' id="title" name="title" class="input" />
         <span class="error">{{ Errors.GetByKey("Title").Error }}</span>
     </div>
     <div>
         <label for="description" class="label">Description</label>
-        <textarea id="description" name="description" class="input"></textarea>
+        <textarea id="description" name="description" class="input">{{ Errors.GetByKey("Description").Value }}</textarea>
         <span class="error">{{ Errors.GetByKey("Description").Error }}</span>
     </div>
     <button type="submit" class="btn">New project</button>
