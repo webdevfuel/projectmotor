@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 
-	"github.com/flosch/pongo2/v6"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/webdevfuel/projectmotor/template"
 	"github.com/webdevfuel/projectmotor/validator"
@@ -16,9 +15,8 @@ func (h Handler) GetProjects(w http.ResponseWriter, r *http.Request) {
 		fail(w, err, http.StatusInternalServerError)
 		return
 	}
-	err = template.Projects.ExecuteWriter(pongo2.Context{
-		"Projects": projects,
-	}, w)
+	component := template.Projects(projects)
+	err = component.Render(r.Context(), w)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
 		return
@@ -26,7 +24,8 @@ func (h Handler) GetProjects(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handler) NewProject(w http.ResponseWriter, r *http.Request) {
-	err := template.ProjectNew.ExecuteWriter(pongo2.Context{}, w)
+	component := template.ProjectNew()
+	err := component.Render(r.Context(), w)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
 		return
@@ -52,9 +51,8 @@ func (h Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !ok {
-		err = template.ProjectNewForm.ExecuteWriter(pongo2.Context{
-			"Errors": errors,
-		}, w)
+		component := template.ProjectNewForm(errors)
+		err = component.Render(r.Context(), w)
 		if err != nil {
 			fail(w, err, http.StatusInternalServerError)
 			return

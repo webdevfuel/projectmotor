@@ -32,6 +32,10 @@ func (vs ValidatedSlice) GetByKey(key string) Validated {
 	return Validated{}
 }
 
+func NewValidatedSlice() ValidatedSlice {
+	return []Validated{}
+}
+
 func Validate(v Validator, r *http.Request) (bool, ValidatedSlice, error) {
 	decoder = form.NewDecoder()
 	err := r.ParseForm()

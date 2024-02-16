@@ -1,0 +1,9 @@
+package template
+
+import "github.com/webdevfuel/projectmotor/template/layout"
+
+templ Dashboard(message string) {
+	@layout.Dashboard() {
+		<p>{  message  }</p>
+	}
+}

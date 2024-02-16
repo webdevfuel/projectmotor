@@ -7,7 +7,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/flosch/pongo2/v6"
 	"github.com/gorilla/sessions"
 	"github.com/webdevfuel/projectmotor/auth"
 	"github.com/webdevfuel/projectmotor/github"
@@ -15,7 +14,8 @@ import (
 )
 
 func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
-	template.Login.ExecuteWriter(pongo2.Context{}, w)
+	component := template.Login()
+	component.Render(r.Context(), w)
 }
 
 func (h Handler) OAuthGitHubLogin(w http.ResponseWriter, r *http.Request) {
