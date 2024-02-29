@@ -59,5 +59,11 @@ func (h Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	user := h.GetUserFromContext(r.Context())
+	_, err = h.ProjectService.Create(data.Title, user.ID)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("HX-Redirect", "http://localhost:3000/projects")
 }
