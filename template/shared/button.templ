@@ -1,0 +1,105 @@
+package shared
+
+import "strings"
+
+type ButtonOpts struct {
+	Type       string
+	Disabled   bool
+	Color      string
+	Size       string
+	Attributes templ.Attributes
+	As         string
+	Href       string
+}
+
+func NewButtonOpts() ButtonOpts {
+	return ButtonOpts{
+		Type:       "button",
+		Disabled:   false,
+		Color:      "blue",
+		Size:       "md",
+		Attributes: templ.Attributes{},
+		As:         "button",
+		Href:       "",
+	}
+}
+
+func (opts ButtonOpts) SetColor(c string) ButtonOpts {
+	opts.Color = c
+	return opts
+}
+
+func (opts ButtonOpts) SetSize(s string) ButtonOpts {
+	opts.Size = s
+	return opts
+}
+
+func (opts ButtonOpts) SetDisabled(d bool) ButtonOpts {
+	opts.Disabled = d
+	return opts
+}
+
+func (opts ButtonOpts) SetType(t string) ButtonOpts {
+	opts.Type = t
+	return opts
+}
+
+func (opts ButtonOpts) SetAttributes(a templ.Attributes) ButtonOpts {
+	opts.Attributes = a
+	return opts
+}
+
+func (opts ButtonOpts) SetAs(a string) ButtonOpts {
+	opts.As = a
+	return opts
+}
+
+func (opts ButtonOpts) SetHref(h string) ButtonOpts {
+	opts.Href = h
+	return opts
+}
+
+templ Button(opts ButtonOpts) {
+	if opts.As == "button" {
+		<button
+			class={ GenerateClassString(opts) }
+			type={ opts.Type }
+			{ opts.Attributes... }
+		>
+			{ children... }
+		</button>
+	}
+	if opts.As == "a" {
+		<a
+			class={ GenerateClassString(opts) }
+			href={ templ.SafeURL(opts.Href) }
+			{ opts.Attributes... }
+		>
+			{ children... }
+		</a>
+	}
+}
+
+func GenerateClassString(opts ButtonOpts) string {
+	var classes []string
+
+	switch opts.Color {
+	case "blue":
+		classes = append(classes, "border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
+	case "red":
+		classes = append(classes, "border border-transparent bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
+	}
+
+	switch opts.Size {
+	case "sm":
+		classes = append(classes, "py-2 px-3")
+	case "md":
+		classes = append(classes, "py-3 px-4")
+	case "lg":
+		classes = append(classes, "p-4 sm:p-5")
+	}
+
+	classes = append(classes, "inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg")
+
+	return strings.Join(classes, " ")
+}
