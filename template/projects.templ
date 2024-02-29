@@ -1,7 +1,10 @@
 package template
 
-import "github.com/webdevfuel/projectmotor/database"
-import "github.com/webdevfuel/projectmotor/template/layout"
+import (
+	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/layout"
+	"fmt"
+)
 
 templ Projects(projects []database.Project) {
 	@layout.Dashboard() {
@@ -15,6 +18,7 @@ templ Projects(projects []database.Project) {
 					<div class="flex items-center space-x-2.5">
 						<p class="dark:text-white">{  project.Title  }</p>
 					</div>
+					<a href={ templ.URL(fmt.Sprintf("/projects/%d/edit", project.ID)) } class="link">Edit</a>
 				</div>
 			}
 		</div>

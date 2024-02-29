@@ -48,6 +48,8 @@ func protectedRouter(h *handler.Handler) func(chi.Router) {
 		r.Get("/projects", h.GetProjects)
 		r.Post("/projects", h.CreateProject)
 		r.Get("/projects/new", h.NewProject)
+		r.Get("/projects/{id}/edit", h.EditProject)
+		r.Patch("/projects/{id}/toggle", h.ToggleProjectPublished)
 		r.Get("/", h.Dashboard)
 	}
 }

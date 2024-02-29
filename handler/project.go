@@ -2,7 +2,9 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/webdevfuel/projectmotor/template"
 	"github.com/webdevfuel/projectmotor/validator"
@@ -66,4 +68,36 @@ func (h Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("HX-Redirect", "http://localhost:3000/projects")
+}
+
+func (h Handler) EditProject(w http.ResponseWriter, r *http.Request) {
+	user := h.GetUserFromContext(r.Context())
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	project, err := h.ProjectService.Get(int32(id), user.ID)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	component := template.ProjectEdit(project)
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h Handler) ToggleProjectPublished(w http.ResponseWriter, r *http.Request) {
+	user := h.GetUserFromContext(r.Context())
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	project, err := h.ProjectService.TogglePublished(int32(id), user.ID)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	component := template.ProjectStatus(project)
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
 }

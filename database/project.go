@@ -35,6 +35,24 @@ func (s ProjectService) Create(title string, ownerID int32) (Project, error) {
 	return project, nil
 }
 
+func (s ProjectService) TogglePublished(projectID int32, ownerID int32) (Project, error) {
+	var project Project
+	err := s.db.Get(&project, "update projects set published = not published where id = $1 and owner_id = $2 returning *", projectID, ownerID)
+	if err != nil {
+		return Project{}, err
+	}
+	return project, nil
+}
+
+func (s ProjectService) Get(projectID int32, ownerID int32) (Project, error) {
+	var project Project
+	err := s.db.Get(&project, "select * from projects where id = $1 and owner_id = $2", projectID, ownerID)
+	if err != nil {
+		return Project{}, err
+	}
+	return project, nil
+}
+
 func (s ProjectService) GetAll(ownerID int32) ([]Project, error) {
 	var projects []Project
 	query := "select * from projects where owner_id = $1 order by created_at desc"
