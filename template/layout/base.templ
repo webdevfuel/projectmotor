@@ -1,5 +1,7 @@
 package layout
 
+import "github.com/webdevfuel/projectmotor/template/toast"
+
 templ Base() {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -11,6 +13,7 @@ templ Base() {
 			<script src="/static/htmx.min.js"></script>
 		</head>
 		<body class="dark:bg-slate-900">
+			@toast.Toast(toast.NewToastOpts())
 			{ children... }
 		</body>
 	</html>

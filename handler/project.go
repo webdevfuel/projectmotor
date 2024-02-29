@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/webdevfuel/projectmotor/template"
+	"github.com/webdevfuel/projectmotor/template/toast"
 	"github.com/webdevfuel/projectmotor/validator"
 )
 
@@ -100,6 +101,16 @@ func (h Handler) ToggleProjectPublished(w http.ResponseWriter, r *http.Request) 
 		fail(w, err, http.StatusInternalServerError)
 		return
 	}
+	component = toast.Toast(toast.ToastOpts{
+		Message: "Project updated successfully",
+		Type:    "success",
+		SwapOOB: true,
+	})
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
 }
 
 type UpdateProjectForm struct {
@@ -142,6 +153,16 @@ func (h Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	component := template.ProjectEditForm(project, validator.NewValidatedSlice(), template.ProjectEditFormOpts{
+		SwapOOB: true,
+	})
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	component = toast.Toast(toast.ToastOpts{
+		Message: "Project updated successfully",
+		Type:    "success",
 		SwapOOB: true,
 	})
 	err = component.Render(r.Context(), w)
