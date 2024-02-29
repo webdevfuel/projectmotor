@@ -4,13 +4,16 @@ import (
 	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/template/layout"
 	"fmt"
+	"github.com/webdevfuel/projectmotor/template/shared"
 )
 
 templ Projects(projects []database.Project) {
 	@layout.Dashboard() {
 		<div class="flex items-center justify-between">
 			<h1 class="dark:text-white text-3xl font-bold">Projects</h1>
-			<a href="/projects/new" class="btn">New project</a>
+			@shared.Button(shared.NewButtonOpts().SetAs("a").SetHref("/projects/new")) {
+				New project
+			}
 		</div>
 		<div class="mt-6 space-y-4">
 			for _, project := range projects {

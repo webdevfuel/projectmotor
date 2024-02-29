@@ -1,6 +1,7 @@
 package template
 
 import "github.com/webdevfuel/projectmotor/validator"
+import "github.com/webdevfuel/projectmotor/template/shared"
 
 templ ProjectNewForm(errors validator.ValidatedSlice) {
 	<form class="mt-6 space-y-4" hx-post="/projects" hx-swap="outerHTML">
@@ -14,6 +15,8 @@ templ ProjectNewForm(errors validator.ValidatedSlice) {
 			<textarea id="description" name="description" class="input">{ errors.GetByKey("Description").Value }</textarea>
 			<span class="error">{ errors.GetByKey("Description").Error }</span>
 		</div>
-		<button type="submit" class="btn">New project</button>
+		@shared.Button(shared.NewButtonOpts().SetType("submit")) {
+			New project
+		}
 	</form>
 }

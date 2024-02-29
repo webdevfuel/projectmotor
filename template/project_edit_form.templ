@@ -2,6 +2,7 @@ package template
 
 import (
 	"github.com/webdevfuel/projectmotor/validator"
+	"github.com/webdevfuel/projectmotor/template/shared"
 	"github.com/webdevfuel/projectmotor/database"
 	"fmt"
 )
@@ -44,7 +45,16 @@ templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice,
 			</textarea>
 			<span class="error">{ errors.GetByKey("Description").Error }</span>
 		</div>
-		<button type="submit" class="btn">Save project</button>
+		<div class="flex items-center justify-between">
+			@shared.Button(shared.NewButtonOpts().SetType("submit")) {
+				Save project
+			}
+			@shared.Button(shared.NewButtonOpts().SetColor("red").SetAttributes(templ.Attributes{
+				"hx-delete": fmt.Sprintf("/projects/%d", project.ID),
+			})) {
+				Delete project
+			}
+		</div>
 	</form>
 	if opts.SwapOOB {
 		@ProjectTitle(project, ProjectTitleOpts{

@@ -71,3 +71,11 @@ func (s ProjectService) Update(projectID int32, title string, description string
 	}
 	return project, nil
 }
+
+func (s ProjectService) Delete(projectID int32, ownerID int32) error {
+	_, err := s.db.Exec("delete from projects where id = $1 and owner_id = $2", projectID, ownerID)
+	if err != nil {
+		return err
+	}
+	return nil
+}

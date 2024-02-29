@@ -171,3 +171,14 @@ func (h Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func (h Handler) DeleteProject(w http.ResponseWriter, r *http.Request) {
+	user := h.GetUserFromContext(r.Context())
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	err := h.ProjectService.Delete(int32(id), user.ID)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("HX-Redirect", "http://localhost:3000/projects")
+}
