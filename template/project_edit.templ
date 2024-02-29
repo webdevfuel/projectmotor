@@ -3,13 +3,15 @@ package template
 import (
 	"github.com/webdevfuel/projectmotor/template/layout"
 	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/validator"
 )
 
 templ ProjectEdit(project database.Project) {
 	@layout.Dashboard() {
-		<div class="flex items-center justify-between">
-			<h1 class="dark:text-white text-3xl font-bold">{ project.Title }</h1>
+		<div class="flex items-center justify-between" id="project">
+			@ProjectTitle(project, NewProjectTitleOpts())
 			@ProjectStatus(project)
 		</div>
+		@ProjectEditForm(project, validator.NewValidatedSlice(), NewProjectEditFormOpts())
 	}
 }

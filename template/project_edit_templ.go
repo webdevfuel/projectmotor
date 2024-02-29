@@ -13,6 +13,7 @@ import "bytes"
 import (
 	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/template/layout"
+	"github.com/webdevfuel/projectmotor/validator"
 )
 
 func ProjectEdit(project database.Project) templ.Component {
@@ -34,20 +35,11 @@ func ProjectEdit(project database.Project) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex items-center justify-between\"><h1 class=\"dark:text-white text-3xl font-bold\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex items-center justify-between\" id=\"project\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(project.Title)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `template/project_edit.templ`, Line: 10, Col: 65}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h1>")
+			templ_7745c5c3_Err = ProjectTitle(project, NewProjectTitleOpts()).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -56,6 +48,10 @@ func ProjectEdit(project database.Project) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = ProjectEditForm(project, validator.NewValidatedSlice(), NewProjectEditFormOpts()).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -1,0 +1,54 @@
+package template
+
+import (
+	"github.com/webdevfuel/projectmotor/validator"
+	"github.com/webdevfuel/projectmotor/database"
+	"fmt"
+)
+
+type ProjectEditFormOpts struct {
+	SwapOOB bool
+}
+
+func NewProjectEditFormOpts() ProjectEditFormOpts {
+	return ProjectEditFormOpts{
+		SwapOOB: false,
+	}
+}
+
+templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice, opts ProjectEditFormOpts) {
+	<form class="mt-6 space-y-4" hx-patch={ templ.EscapeString(fmt.Sprintf("/projects/%d", project.ID)) } hx-swap="outerHTML">
+		<div>
+			<label for="title" class="label">Title (required)</label>
+			<input
+				id="title"
+				type="text"
+				name="title"
+				class="input"
+				if errors.GetByKey("Title").Error != "" {
+					value={ errors.GetByKey("Title").Value }
+				} else {
+					value={ project.Title }
+				}
+			/>
+			<span class="error">{ errors.GetByKey("Title").Error }</span>
+		</div>
+		<div>
+			<label for="description" class="label">Description</label>
+			<textarea id="description" name="description" class="input">
+				if errors.GetByKey("Description").Error != "" {
+					{ errors.GetByKey("Description").Value }
+				} else {
+					{ project.Description.String }
+				}
+			</textarea>
+			<span class="error">{ errors.GetByKey("Description").Error }</span>
+		</div>
+		<button type="submit" class="btn">Save project</button>
+	</form>
+	if opts.SwapOOB {
+		@ProjectTitle(project, ProjectTitleOpts{
+			SwapOOB: true,
+		})
+	}
+}

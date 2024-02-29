@@ -1,0 +1,25 @@
+package template
+
+import (
+	"github.com/webdevfuel/projectmotor/database"
+)
+
+type ProjectTitleOpts struct {
+	SwapOOB bool
+}
+
+func NewProjectTitleOpts() ProjectTitleOpts {
+	return ProjectTitleOpts{
+		SwapOOB: false,
+	}
+}
+
+templ ProjectTitle(project database.Project, opts ProjectTitleOpts) {
+	<h1
+		if opts.SwapOOB {
+			hx-swap-oob="true"
+		}
+		id="project-title"
+		class="dark:text-white text-3xl font-bold"
+	>{ project.Title }</h1>
+}

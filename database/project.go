@@ -62,3 +62,12 @@ func (s ProjectService) GetAll(ownerID int32) ([]Project, error) {
 	}
 	return projects, nil
 }
+
+func (s ProjectService) Update(projectID int32, title string, description string, ownerID int32) (Project, error) {
+	var project Project
+	err := s.db.Get(&project, "update projects set title = $1, description = $2 where id = $3 and owner_id = $4 returning *", title, description, projectID, ownerID)
+	if err != nil {
+		return Project{}, err
+	}
+	return project, nil
+}
