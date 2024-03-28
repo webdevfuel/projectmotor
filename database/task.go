@@ -24,3 +24,13 @@ func NewTaskService(db *sqlx.DB) *TaskService {
 		db: db,
 	}
 }
+
+func (s *TaskService) Create(title string, description string, projectID int32, ownerID int32) error {
+	var task Task
+	return s.db.Get(&task, `
+		INSERT INTO tasks (title, description, owner_id, project_id)
+		    VALUES ($1, $2, $3, $4)
+		RETURNING
+		    *
+	`, title, description, ownerID, projectID)
+}
