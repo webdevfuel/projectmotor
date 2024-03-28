@@ -1,9 +1,12 @@
 package template
 
-import "github.com/webdevfuel/projectmotor/validator"
-import "github.com/webdevfuel/projectmotor/template/shared"
+import (
+	"github.com/webdevfuel/projectmotor/validator"
+	"github.com/webdevfuel/projectmotor/template/shared"
+	"github.com/webdevfuel/projectmotor/database"
+)
 
-templ TaskNewForm(errors validator.ValidatedSlice) {
+templ TaskNewForm(errors validator.ValidatedSlice, projects []database.Project) {
 	<form class="mt-6 space-y-4" hx-post="/tasks" hx-swap="outerHTML">
 		<div>
 			<label for="title" class="label">Title (required)</label>
@@ -13,6 +16,16 @@ templ TaskNewForm(errors validator.ValidatedSlice) {
 		<div>
 			<label for="description" class="label">Description</label>
 			<textarea id="description" name="description" class="input">{ errors.GetByKey("Description").Value }</textarea>
+			<span class="error">{ errors.GetByKey("Description").Error }</span>
+		</div>
+		<div>
+			<label for="project" class="label">Project</label>
+			<select id="project" name="project" class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600">
+				<option selected disabled>Select a project...</option>
+				for _, project := range projects {
+					<option value={ string(project.ID) }>{ project.Title }</option>
+				}
+			</select>
 			<span class="error">{ errors.GetByKey("Description").Error }</span>
 		</div>
 		@shared.Button(shared.NewButtonOpts().SetType("submit")) {

@@ -3,12 +3,13 @@ package template
 
 import "github.com/webdevfuel/projectmotor/template/layout"
 import "github.com/webdevfuel/projectmotor/validator"
+import "github.com/webdevfuel/projectmotor/database"
 
-templ TaskNew() {
+templ TaskNew(projects []database.Project) {
 	@layout.Dashboard() {
 		<div class="flex items-center justify-between">
 			<h1 class="dark:text-white text-3xl font-bold">New task</h1>
 		</div>
-		@TaskNewForm(validator.NewValidatedSlice())
+		@TaskNewForm(validator.NewValidatedSlice(), projects)
 	}
 }

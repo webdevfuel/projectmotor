@@ -12,8 +12,9 @@ import "bytes"
 
 import "github.com/webdevfuel/projectmotor/template/layout"
 import "github.com/webdevfuel/projectmotor/validator"
+import "github.com/webdevfuel/projectmotor/database"
 
-func TaskNew() templ.Component {
+func TaskNew(projects []database.Project) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -36,7 +37,7 @@ func TaskNew() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = TaskNewForm(validator.NewValidatedSlice()).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = TaskNewForm(validator.NewValidatedSlice(), projects).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

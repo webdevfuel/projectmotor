@@ -7,8 +7,14 @@ import (
 )
 
 func (h Handler) NewTask(w http.ResponseWriter, r *http.Request) {
-	component := template.TaskNew()
-	err := component.Render(r.Context(), w)
+	user := h.GetUserFromContext(r.Context())
+	projects, err := h.ProjectService.GetAll(user.ID)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	component := template.TaskNew(projects)
+	err = component.Render(r.Context(), w)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
 		return
