@@ -15,6 +15,7 @@ type Handler struct {
 	UserService    *database.UserService
 	AccountService *database.AccountService
 	ProjectService *database.ProjectService
+	TaskService    *database.TaskService
 	Store          *sessions.CookieStore
 	DB             *sqlx.DB
 }
@@ -28,12 +29,14 @@ func NewHandler(options HandlerOptions) *Handler {
 	userService := database.NewUserService(options.DB)
 	accountService := database.NewAccountService(options.DB)
 	projectService := database.NewProjectService(options.DB)
+	taskService := database.NewTaskService(options.DB)
 	return &Handler{
 		Store:          options.Store,
 		DB:             options.DB,
 		UserService:    userService,
 		AccountService: accountService,
 		ProjectService: projectService,
+		TaskService:    taskService,
 	}
 }
 
