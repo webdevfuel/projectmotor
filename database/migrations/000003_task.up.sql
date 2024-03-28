@@ -1,4 +1,4 @@
-CREATE TABLE task (
+CREATE TABLE tasks (
     "id" serial PRIMARY KEY,
     "title" text NOT NULL,
     "description" text,
