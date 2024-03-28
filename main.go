@@ -52,6 +52,7 @@ func protectedRouter(h *handler.Handler) func(chi.Router) {
 		r.Patch("/projects/{id}/toggle", h.ToggleProjectPublished)
 		r.Patch("/projects/{id}", h.UpdateProject)
 		r.Delete("/projects/{id}", h.DeleteProject)
+		r.Get("/tasks/new", h.NewTask)
 		r.Get("/", h.Dashboard)
 	}
 }
