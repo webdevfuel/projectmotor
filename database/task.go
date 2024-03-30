@@ -34,3 +34,16 @@ func (s *TaskService) Create(title string, description string, projectID int32, 
 		    *
 	`, title, description, ownerID, projectID)
 }
+
+func (s *TaskService) GetAll(ownerID int32) ([]Task, error) {
+	var tasks []Task
+	err := s.db.Select(&tasks, `
+		SELECT
+		    *
+		FROM
+		    tasks
+		WHERE
+		    owner_id = $1
+	`, ownerID)
+	return tasks, err
+}
