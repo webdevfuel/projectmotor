@@ -1,6 +1,9 @@
 package layout
 
-import "github.com/webdevfuel/projectmotor/template/toast"
+import (
+	"github.com/webdevfuel/projectmotor/template/toast"
+	"github.com/webdevfuel/projectmotor/template/modal"
+)
 
 templ Base() {
 	<!DOCTYPE html>
@@ -11,9 +14,11 @@ templ Base() {
 			<title>Project Motor</title>
 			<link href="/static/output.css" rel="stylesheet"/>
 			<script src="/static/htmx.min.js"></script>
+			<script defer src="/static/alpine.min.js"></script>
 		</head>
 		<body class="dark:bg-slate-900">
 			@toast.Toast(toast.NewToastOpts())
+			@modal.Modal()
 			{ children... }
 		</body>
 	</html>
