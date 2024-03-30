@@ -72,3 +72,18 @@ func (h Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("HX-Redirect", "http://localhost:3000/tasks")
 }
+
+func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
+	user := h.GetUserFromContext(r.Context())
+	tasks, err := h.TaskService.GetAll(user.ID)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	component := template.Tasks(tasks)
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+}
