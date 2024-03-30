@@ -1,5 +1,24 @@
 package modal
 
-templ Modal() {
+templ Container() {
 	<div id="modal"></div>
+}
+
+templ Modal() {
+	<div x-data="{ open: true }">
+		<template x-teleport="body">
+			<div x-show="open">
+				<div class="fixed inset-0 z-0 dark:bg-slate-900/80"></div>
+				<div class="fixed inset-0 z-50">
+					<div class="flex min-h-full items-center justify-center p-2.5">
+						<div class="sm:max-w-2xl sm:w-full m-3 sm:mx-auto" @click.outside="open = false">
+							<div class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-gray-800 dark:border-gray-700 dark:shadow-slate-700/[.7] py-3 px-4">
+								{ children... }
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</template>
+	</div>
 }
