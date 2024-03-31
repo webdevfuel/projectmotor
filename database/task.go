@@ -47,3 +47,17 @@ func (s *TaskService) GetAll(ownerID int32) ([]Task, error) {
 	`, ownerID)
 	return tasks, err
 }
+
+func (s *TaskService) Get(taskID int32, ownerID int32) (Task, error) {
+	var task Task
+	err := s.db.Get(&task, `
+		SELECT
+		    *
+		FROM
+		    tasks
+		WHERE
+		    id = $1
+		    AND owner_id = $2
+	`, taskID, ownerID)
+	return task, err
+}
