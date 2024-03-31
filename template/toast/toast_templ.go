@@ -37,7 +37,7 @@ func Toast(opts ToastOpts) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"toast\" class=\"fixed bottom-0 right-0 z-50 flex flex-col items-end p-6 space-y-4\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"toast\" class=\"fixed bottom-0 right-0 z-[9999] flex flex-col items-end p-6 space-y-4\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

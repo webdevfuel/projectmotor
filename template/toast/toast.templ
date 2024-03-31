@@ -17,7 +17,7 @@ func NewToastOpts() ToastOpts {
 templ Toast(opts ToastOpts) {
 	<div
 		id="toast"
-		class="fixed bottom-0 right-0 z-50 flex flex-col items-end p-6 space-y-4"
+		class="fixed bottom-0 right-0 z-[9999] flex flex-col items-end p-6 space-y-4"
 		if opts.SwapOOB {
 			hx-swap-oob="true"
 		}
