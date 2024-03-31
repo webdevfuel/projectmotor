@@ -21,7 +21,7 @@ templ Tasks(tasks []database.Task) {
 					<div class="flex items-center space-x-2.5">
 						<p class="dark:text-white">{  task.Title  }</p>
 					</div>
-					<a href={ templ.URL(fmt.Sprintf("/tasks/%d/edit", task.ID)) } class="link">Edit</a>
+					<button hx-target="#modal" hx-get={ fmt.Sprintf("/tasks/%d/edit", task.ID) } class="link">Edit</button>
 				</div>
 			}
 		</div>
