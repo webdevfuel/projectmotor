@@ -8,6 +8,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/webdevfuel/projectmotor/template"
+	"github.com/webdevfuel/projectmotor/template/toast"
 	"github.com/webdevfuel/projectmotor/validator"
 )
 
@@ -97,10 +98,64 @@ func (h *Handler) EditTask(w http.ResponseWriter, r *http.Request) {
 		fail(w, err, http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("HX-Trigger", "open-modal")
 	component := template.TaskEditForm(task, validator.NewValidatedSlice())
 	err = component.Render(r.Context(), w)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)
 		return
 	}
+}
+
+type UpdateTaskForm struct {
+	Title       string `form:"title"`
+	Description string `form:"description"`
+}
+
+func (data UpdateTaskForm) Validate() error {
+	return validation.ValidateStruct(&data,
+		validation.Field(&data.Title, validation.Required, validation.Length(1, 255)),
+	)
+}
+
+func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
+	var data UpdateTaskForm
+	ok, errors, err := validator.Validate(&data, r)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	taskId, _ := h.GetIDFromRequest(r, "id")
+	userId := h.GetUserFromContext(r.Context()).ID
+	task, err := h.TaskService.Get(taskId, userId)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	if !ok {
+		component := template.TaskEditForm(task, errors)
+		err = component.Render(r.Context(), w)
+		if err != nil {
+			fail(w, err, http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+	err = h.TaskService.Update(taskId, userId, data.Title, data.Description)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	component := toast.Toast(toast.ToastOpts{
+		Message: "Task updated successfully",
+		Type:    "success",
+		SwapOOB: true,
+	})
+	w.Header().Set("HX-Reswap", "none")
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	"github.com/webdevfuel/projectmotor/auth"
@@ -58,6 +60,14 @@ func (h Handler) GetUserFromContext(ctx context.Context) database.User {
 		return user
 	}
 	return database.User{}
+}
+
+func (h *Handler) GetIDFromRequest(r *http.Request, key string) (int32, error) {
+	id, err := strconv.Atoi(chi.URLParam(r, key))
+	if err != nil {
+		return 0, err
+	}
+	return int32(id), nil
 }
 
 func fail(w http.ResponseWriter, err error, code int) {
