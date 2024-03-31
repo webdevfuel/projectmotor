@@ -27,7 +27,7 @@ templ Container() {
 					x-transition:leave-end="opacity-0 translate-y-7"
 				>
 					<div class="flex min-h-full items-center justify-center p-2.5">
-						<div class="sm:max-w-2xl sm:w-full m-3 sm:mx-auto" @click.outside="open = false">
+						<div class="sm:max-w-2xl sm:w-full m-3 sm:mx-auto" @click.outside="if (!$event.target.closest('#toast')) open = false">
 							<div id="modal" class="flex flex-col bg-white border shadow-sm rounded-xl pointer-events-auto dark:bg-gray-800 dark:border-gray-700 dark:shadow-slate-700/[.7]">
 								{ children... }
 							</div>
