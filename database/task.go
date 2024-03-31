@@ -61,3 +61,17 @@ func (s *TaskService) Get(taskID int32, ownerID int32) (Task, error) {
 	`, taskID, ownerID)
 	return task, err
 }
+
+func (s *TaskService) Update(taskID int32, ownerID int32, title string, description string) error {
+	_, err := s.db.Exec(`
+		UPDATE
+		    tasks
+		SET
+		    title = $3,
+		    description = $4
+		WHERE
+		    id = $1
+		    AND owner_id = $2
+	`, taskID, ownerID, title, description)
+	return err
+}
