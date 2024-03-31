@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/webdevfuel/projectmotor/template"
@@ -81,6 +82,22 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	component := template.Tasks(tasks)
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *Handler) EditTask(w http.ResponseWriter, r *http.Request) {
+	user := h.GetUserFromContext(r.Context())
+	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	task, err := h.TaskService.Get(int32(id), user.ID)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	component := template.TaskEditForm(task, validator.NewValidatedSlice())
 	err = component.Render(r.Context(), w)
 	if err != nil {
 		fail(w, err, http.StatusInternalServerError)

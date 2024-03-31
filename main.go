@@ -55,6 +55,7 @@ func protectedRouter(h *handler.Handler) func(chi.Router) {
 		r.Get("/tasks/new", h.NewTask)
 		r.Post("/tasks", h.CreateTask)
 		r.Get("/tasks", h.GetTasks)
+		r.Get("/tasks/{id}/edit", h.EditTask)
 		r.Get("/", h.Dashboard)
 	}
 }
