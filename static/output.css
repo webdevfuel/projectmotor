@@ -902,8 +902,8 @@ select {
   top: 0px;
 }
 
-.z-40 {
-  z-index: 40;
+.z-0 {
+  z-index: 0;
 }
 
 .z-50 {
@@ -912,10 +912,6 @@ select {
 
 .z-\[9999\] {
   z-index: 9999;
-}
-
-.z-0 {
-  z-index: 0;
 }
 
 .m-3 {

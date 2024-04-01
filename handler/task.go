@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -151,6 +152,7 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		Type:    "success",
 		SwapOOB: true,
 	})
+	w.Header().Set("HX-Trigger", fmt.Sprintf("update-task-row:%d", task.ID))
 	w.Header().Set("HX-Reswap", "none")
 	err = component.Render(r.Context(), w)
 	if err != nil {
@@ -158,4 +160,20 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) GetTask(w http.ResponseWriter, r *http.Request) {
+	taskId, _ := h.GetIDFromRequest(r, "id")
+	userId := h.GetUserFromContext(r.Context()).ID
+	task, err := h.TaskService.Get(taskId, userId)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
+	component := template.TaskRow(task)
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		fail(w, err, http.StatusInternalServerError)
+		return
+	}
 }

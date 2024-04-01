@@ -17,13 +17,17 @@ templ Tasks(tasks []database.Task) {
 		</div>
 		<div class="mt-6 space-y-4">
 			for _, task := range tasks {
-				<div class="flex items-center justify-between border border-gray-200 dark:border-gray-700 w-full p-4 rounded-lg shadow-md">
-					<div class="flex items-center space-x-2.5">
-						<p class="dark:text-white">{  task.Title  }</p>
-					</div>
-					<button hx-target="#modal" hx-get={ fmt.Sprintf("/tasks/%d/edit", task.ID) } class="link">Edit</button>
-				</div>
+				@TaskRow(task)
 			}
 		</div>
 	}
+}
+
+templ TaskRow(task database.Task) {
+	<div hx-trigger={ fmt.Sprintf("update-task-row:%d from:body", task.ID) } hx-swap="outerHTML" hx-get={ fmt.Sprintf("/tasks/%d", task.ID) } class="flex items-center justify-between border border-gray-200 dark:border-gray-700 w-full p-4 rounded-lg shadow-md">
+		<div class="flex items-center space-x-2.5">
+			<p class="dark:text-white">{  task.Title  }</p>
+		</div>
+		<button type="button" hx-target="#modal" hx-swap="innerHTML" hx-get={ fmt.Sprintf("/tasks/%d/edit", task.ID) } class="link">Edit</button>
+	</div>
 }
