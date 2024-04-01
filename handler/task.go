@@ -13,7 +13,7 @@ import (
 	"github.com/webdevfuel/projectmotor/validator"
 )
 
-func (h Handler) NewTask(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) NewTask(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	projects, err := h.ProjectService.GetAll(user.ID)
 	if err != nil {
@@ -41,7 +41,7 @@ func (data CreateTaskForm) Validate() error {
 	)
 }
 
-func (h Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	var data CreateTaskForm
 	ok, errors, err := validator.Validate(&data, r)
 	if err != nil {

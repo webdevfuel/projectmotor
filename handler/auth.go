@@ -13,12 +13,12 @@ import (
 	"github.com/webdevfuel/projectmotor/template"
 )
 
-func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	component := template.Login()
 	component.Render(r.Context(), w)
 }
 
-func (h Handler) OAuthGitHubLogin(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) OAuthGitHubLogin(w http.ResponseWriter, r *http.Request) {
 	state, err := generateCSRFToken(16)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
@@ -39,7 +39,7 @@ func (h Handler) OAuthGitHubLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	// Get session store
 	session, err := h.GetSessionStore(r)
 	if err != nil {

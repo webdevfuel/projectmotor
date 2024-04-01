@@ -42,11 +42,11 @@ func NewHandler(options HandlerOptions) *Handler {
 	}
 }
 
-func (h Handler) GetSessionStore(r *http.Request) (*sessions.Session, error) {
+func (h *Handler) GetSessionStore(r *http.Request) (*sessions.Session, error) {
 	return h.Store.Get(r, "_projectmotor_session")
 }
 
-func (h Handler) BeginTx(ctx context.Context) (*sqlx.Tx, error) {
+func (h *Handler) BeginTx(ctx context.Context) (*sqlx.Tx, error) {
 	tx, err := h.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		return &sqlx.Tx{}, err
@@ -54,7 +54,7 @@ func (h Handler) BeginTx(ctx context.Context) (*sqlx.Tx, error) {
 	return tx, nil
 }
 
-func (h Handler) GetUserFromContext(ctx context.Context) database.User {
+func (h *Handler) GetUserFromContext(ctx context.Context) database.User {
 	user := ctx.Value(auth.UserKey{})
 	if user, ok := user.(database.User); ok {
 		return user
