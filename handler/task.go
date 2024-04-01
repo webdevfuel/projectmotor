@@ -17,13 +17,13 @@ func (h Handler) NewTask(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	projects, err := h.ProjectService.GetAll(user.ID)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	component := template.TaskNew(projects)
 	err = component.Render(r.Context(), w)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 }
@@ -45,32 +45,32 @@ func (h Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	var data CreateTaskForm
 	ok, errors, err := validator.Validate(&data, r)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	projects, err := h.ProjectService.GetAll(h.GetUserFromContext(r.Context()).ID)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	if !ok {
 		component := template.TaskNewForm(errors, projects)
 		err = component.Render(r.Context(), w)
 		if err != nil {
-			fail(w, err, http.StatusInternalServerError)
+			h.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 		return
 	}
 	projectID, err := strconv.Atoi(data.ProjectID)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	user := h.GetUserFromContext(r.Context())
 	err = h.TaskService.Create(data.Title, data.Description, int32(projectID), user.ID)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("HX-Redirect", "http://localhost:3000/tasks")
@@ -80,13 +80,13 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	tasks, err := h.TaskService.GetAll(user.ID)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	component := template.Tasks(tasks)
 	err = component.Render(r.Context(), w)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 }
@@ -96,14 +96,14 @@ func (h *Handler) EditTask(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 	task, err := h.TaskService.Get(int32(id), user.ID)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("HX-Trigger", "open-modal")
 	component := template.TaskEditForm(task, validator.NewValidatedSlice())
 	err = component.Render(r.Context(), w)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 }
@@ -123,28 +123,28 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	var data UpdateTaskForm
 	ok, errors, err := validator.Validate(&data, r)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	taskId, _ := h.GetIDFromRequest(r, "id")
 	userId := h.GetUserFromContext(r.Context()).ID
 	task, err := h.TaskService.Get(taskId, userId)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	if !ok {
 		component := template.TaskEditForm(task, errors)
 		err = component.Render(r.Context(), w)
 		if err != nil {
-			fail(w, err, http.StatusInternalServerError)
+			h.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 		return
 	}
 	err = h.TaskService.Update(taskId, userId, data.Title, data.Description)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	component := toast.Toast(toast.ToastOpts{
@@ -156,7 +156,7 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("HX-Reswap", "none")
 	err = component.Render(r.Context(), w)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
@@ -167,13 +167,13 @@ func (h *Handler) GetTask(w http.ResponseWriter, r *http.Request) {
 	userId := h.GetUserFromContext(r.Context()).ID
 	task, err := h.TaskService.Get(taskId, userId)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	component := template.TaskRow(task)
 	err = component.Render(r.Context(), w)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 }

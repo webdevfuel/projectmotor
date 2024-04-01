@@ -70,7 +70,7 @@ func (h *Handler) GetIDFromRequest(r *http.Request, key string) (int32, error) {
 	return int32(id), nil
 }
 
-func fail(w http.ResponseWriter, err error, code int) {
+func (h *Handler) Error(w http.ResponseWriter, err error, code int) {
 	http.Error(w, http.StatusText(code), code)
 	log.Println("error:", err)
 }

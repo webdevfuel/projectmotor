@@ -21,18 +21,18 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 func (h Handler) OAuthGitHubLogin(w http.ResponseWriter, r *http.Request) {
 	state, err := generateCSRFToken(16)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	session, err := h.GetSessionStore(r)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	session.Values["state"] = state
 	err = session.Save(r, w)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	url := github.Config.AuthCodeURL(state)
@@ -43,7 +43,7 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	// Get session store
 	session, err := h.GetSessionStore(r)
 	if err != nil {
-		fail(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	// Get state and code from url query (?state=foo&code=bar)
@@ -54,7 +54,7 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		// Exchange code for token
 		token, err := github.Config.Exchange(context.Background(), code)
 		if err != nil {
-			fail(w, err, http.StatusInternalServerError)
+			h.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 		// Initialise github.GitHubOAuth2 instance
@@ -62,13 +62,13 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		// Fetch data from GitHub's API
 		data, err := gh.GetData()
 		if err != nil {
-			fail(w, err, http.StatusInternalServerError)
+			h.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 		// Check if account with ID exists
 		account, exists, err := h.AccountService.GetAccountByID(data.ID)
 		if err != nil {
-			fail(w, err, http.StatusInternalServerError)
+			h.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 		if !exists {
@@ -76,40 +76,40 @@ func (h Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 			tx, err := h.BeginTx(r.Context())
 			defer tx.Rollback()
 			if err != nil {
-				fail(w, err, http.StatusInternalServerError)
+				h.Error(w, err, http.StatusInternalServerError)
 				return
 			}
 			// Create user within transaction
 			user, err := h.UserService.CreateUser(tx, data.PrimaryEmail)
 			if err != nil {
-				fail(w, err, http.StatusInternalServerError)
+				h.Error(w, err, http.StatusInternalServerError)
 				return
 			}
 			// Create account within transaction
 			_, err = h.AccountService.CreateAccount(tx, data.ID, user.ID, token.AccessToken)
 			if err != nil {
-				fail(w, err, http.StatusInternalServerError)
+				h.Error(w, err, http.StatusInternalServerError)
 				return
 			}
 			// Commit transaction
 			err = tx.Commit()
 			if err != nil {
-				fail(w, err, http.StatusInternalServerError)
+				h.Error(w, err, http.StatusInternalServerError)
 				return
 			}
 			err = auth.SetUserSession(w, r, user.ID, session)
 			if err != nil {
-				fail(w, err, http.StatusInternalServerError)
+				h.Error(w, err, http.StatusInternalServerError)
 			}
 		}
 		err = auth.SetUserSession(w, r, account.UserID, session)
 		if err != nil {
-			fail(w, err, http.StatusInternalServerError)
+			h.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 		return
 	}
-	fail(w, errors.New("session and query state mismatch"), http.StatusUnauthorized)
+	h.Error(w, errors.New("session and query state mismatch"), http.StatusUnauthorized)
 }
 
 func generateCSRFToken(n int) (string, error) {
