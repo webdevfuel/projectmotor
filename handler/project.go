@@ -2,9 +2,7 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/webdevfuel/projectmotor/template"
 	"github.com/webdevfuel/projectmotor/template/toast"
@@ -73,7 +71,7 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) EditProject(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := h.GetIDFromRequest(r, "id")
 	project, err := h.ProjectService.Get(int32(id), user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
@@ -89,7 +87,7 @@ func (h *Handler) EditProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) ToggleProjectPublished(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := h.GetIDFromRequest(r, "id")
 	project, err := h.ProjectService.TogglePublished(int32(id), user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
@@ -126,7 +124,7 @@ func (data UpdateProjectForm) Validate() error {
 
 func (h *Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 	var data UpdateProjectForm
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := h.GetIDFromRequest(r, "id")
 	user := h.GetUserFromContext(r.Context())
 	project, err := h.ProjectService.Get(int32(id), user.ID)
 	if err != nil {
@@ -174,7 +172,7 @@ func (h *Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := h.GetIDFromRequest(r, "id")
 	err := h.ProjectService.Delete(int32(id), user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)

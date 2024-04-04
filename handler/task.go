@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/webdevfuel/projectmotor/template"
@@ -93,7 +92,7 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) EditTask(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := h.GetIDFromRequest(r, "id")
 	task, err := h.TaskService.Get(int32(id), user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
