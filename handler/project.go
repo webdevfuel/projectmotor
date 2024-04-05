@@ -66,7 +66,7 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("HX-Redirect", "http://localhost:3000/projects")
+	h.Redirect(w, "localhost:3000/projects")
 }
 
 func (h *Handler) EditProject(w http.ResponseWriter, r *http.Request) {
@@ -178,5 +178,5 @@ func (h *Handler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("HX-Redirect", "http://localhost:3000/projects")
+	h.Redirect(w, "localhost:3000/projects")
 }

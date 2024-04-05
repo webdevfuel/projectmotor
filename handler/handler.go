@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/sessions"
@@ -73,4 +74,17 @@ func (h *Handler) GetIDFromRequest(r *http.Request, key string) (int32, error) {
 func (h *Handler) Error(w http.ResponseWriter, err error, code int) {
 	http.Error(w, http.StatusText(code), code)
 	log.Println("error:", err)
+}
+
+func (h *Handler) TriggerEvent(w http.ResponseWriter, events ...string) {
+	s := strings.Join(events, ", ")
+	w.Header().Set("HX-Trigger", s)
+}
+
+func (h *Handler) Reswap(w http.ResponseWriter, strategy string) {
+	w.Header().Set("HX-Reswap", strategy)
+}
+
+func (h *Handler) Redirect(w http.ResponseWriter, url string) {
+	w.Header().Set("HX-Redirect", url)
 }

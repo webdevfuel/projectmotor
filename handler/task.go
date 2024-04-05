@@ -72,7 +72,7 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("HX-Redirect", "http://localhost:3000/tasks")
+	h.Redirect(w, "http://localhost:3000/tasks")
 }
 
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +98,7 @@ func (h *Handler) EditTask(w http.ResponseWriter, r *http.Request) {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("HX-Trigger", "open-modal")
+	h.TriggerEvent(w, "open-modal")
 	component := template.TaskEditForm(task, validator.NewValidatedSlice())
 	err = component.Render(r.Context(), w)
 	if err != nil {
@@ -151,8 +151,8 @@ func (h *Handler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		Type:    "success",
 		SwapOOB: true,
 	})
-	w.Header().Set("HX-Trigger", fmt.Sprintf("update-task-row:%d", task.ID))
-	w.Header().Set("HX-Reswap", "none")
+	h.TriggerEvent(w, fmt.Sprintf("update-task-row:%d", task.ID))
+	h.Reswap(w, "none")
 	err = component.Render(r.Context(), w)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
