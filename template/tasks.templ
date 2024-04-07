@@ -7,13 +7,25 @@ import (
 	"github.com/webdevfuel/projectmotor/template/shared"
 )
 
-templ Tasks(tasks []database.Task) {
+templ Tasks(tasks []database.Task, projects []database.Project, projectID int) {
 	@layout.Dashboard() {
 		<div class="flex items-center justify-between">
 			<h1 class="dark:text-white text-3xl font-bold">Tasks</h1>
-			@shared.Button(shared.NewButtonOpts().SetAs("a").SetHref("/tasks/new")) {
-				New task
-			}
+			<div class="flex items-center space-x-2.5">
+				@shared.Dropdown("Filter") {
+					@shared.DropdownLink(shared.DropdownLinkOpts{Attributes: templ.Attributes{"href": "/tasks"}}) {
+						All
+					}
+					for _, project := range projects {
+						@shared.DropdownLink(shared.DropdownLinkOpts{Attributes: templ.Attributes{"href": fmt.Sprintf("/tasks?project=%d", project.ID)}}) {
+							{ project.Title }
+						}
+					}
+				}
+				@shared.Button(shared.NewButtonOpts().SetAs("a").SetHref("/tasks/new")) {
+					New task
+				}
+			</div>
 		</div>
 		<div class="mt-6 space-y-4">
 			for _, task := range tasks {
@@ -26,7 +38,7 @@ templ Tasks(tasks []database.Task) {
 templ TaskRow(task database.Task) {
 	<div hx-trigger={ fmt.Sprintf("update-task-row:%d from:body", task.ID) } hx-swap="outerHTML" hx-get={ fmt.Sprintf("/tasks/%d", task.ID) } class="flex items-center justify-between border border-gray-200 dark:border-gray-700 w-full p-4 rounded-lg shadow-md">
 		<div class="flex items-center space-x-2.5">
-			<p class="dark:text-white">{  task.Title  }</p>
+			<p class="dark:text-white">{  task.Title }</p>
 		</div>
 		<button type="button" hx-target="#modal" hx-swap="innerHTML" hx-get={ fmt.Sprintf("/tasks/%d/edit", task.ID) } class="link">Edit</button>
 	</div>
