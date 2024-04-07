@@ -7,6 +7,7 @@ import (
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
+	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/template"
 	"github.com/webdevfuel/projectmotor/template/toast"
 	"github.com/webdevfuel/projectmotor/validator"
@@ -76,13 +77,37 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
+	project := r.URL.Query().Get("project")
 	user := h.GetUserFromContext(r.Context())
-	tasks, err := h.TaskService.GetAll(user.ID)
+	var tasks []database.Task
+	var projectID int
+	if project == "" {
+		t, err := h.TaskService.GetAll(user.ID)
+		if err != nil {
+			h.Error(w, err, http.StatusInternalServerError)
+			return
+		}
+		tasks = t
+	} else {
+		id, err := strconv.Atoi(project)
+		if err != nil {
+			h.Error(w, err, http.StatusInternalServerError)
+			return
+		}
+		t, err := h.TaskService.GetAllByProjectID(user.ID, int32(id))
+		if err != nil {
+			h.Error(w, err, http.StatusInternalServerError)
+			return
+		}
+		tasks = t
+		projectID = id
+	}
+	projects, err := h.ProjectService.GetAll(user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	component := template.Tasks(tasks)
+	component := template.Tasks(tasks, projects, projectID)
 	err = component.Render(r.Context(), w)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
