@@ -88,3 +88,7 @@ func (h *Handler) Reswap(w http.ResponseWriter, strategy string) {
 func (h *Handler) Redirect(w http.ResponseWriter, url string) {
 	w.Header().Set("HX-Redirect", url)
 }
+
+func (h *Handler) ReplaceUrl(w http.ResponseWriter, url string) {
+	w.Header().Set("HX-Replace-Url", url)
+}

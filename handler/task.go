@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/a-h/templ"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/webdevfuel/projectmotor/database"
@@ -79,6 +80,10 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 	project := r.URL.Query().Get("project")
 	user := h.GetUserFromContext(r.Context())
+	var htmx bool
+	if r.Header.Get("Hx-Request") != "" {
+		htmx = true
+	}
 	var tasks []database.Task
 	var projectID int
 	if project == "" {
@@ -107,7 +112,29 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	component := template.Tasks(tasks, projects, projectID)
+	var filter string
+	if project != "" {
+		filter = fmt.Sprintf("%d", projectID)
+	} else {
+		filter = ""
+	}
+	var component templ.Component
+	if htmx {
+		component = template.TasksColumns(tasks, true)
+		if project == "" {
+			h.ReplaceUrl(w, "/tasks")
+		} else {
+			h.ReplaceUrl(w, fmt.Sprintf("/tasks?project=%d", projectID))
+		}
+	} else {
+		component = template.Tasks(tasks, projects, filter)
+	}
+	err = component.Render(r.Context(), w)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	component = template.TasksFilter(filter)
 	err = component.Render(r.Context(), w)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)

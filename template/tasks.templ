@@ -7,17 +7,18 @@ import (
 	"github.com/webdevfuel/projectmotor/template/shared"
 )
 
-templ Tasks(tasks []database.Task, projects []database.Project, projectID int) {
+templ Tasks(tasks []database.Task, projects []database.Project, filter string) {
 	@layout.Dashboard() {
 		<div class="flex items-center justify-between">
 			<h1 class="dark:text-white text-3xl font-bold">Tasks</h1>
 			<div class="flex items-center space-x-2.5">
+				@TasksFilter(filter)
 				@shared.Dropdown("Filter") {
-					@shared.DropdownLink(shared.DropdownLinkOpts{Attributes: templ.Attributes{"href": "/tasks"}}) {
+					@shared.DropdownButton(shared.DropdownButtonOpts{Attributes: templ.Attributes{"hx-get": "/tasks", "hx-target": "#tasks", "hx-swap": "outerHTML"}}) {
 						All
 					}
 					for _, project := range projects {
-						@shared.DropdownLink(shared.DropdownLinkOpts{Attributes: templ.Attributes{"href": fmt.Sprintf("/tasks?project=%d", project.ID)}}) {
+						@shared.DropdownButton(shared.DropdownButtonOpts{Attributes: templ.Attributes{"hx-get": fmt.Sprintf("/tasks?project=%d", project.ID), "hx-target": "#tasks", "hx-swap": "outerHTML"}}) {
 							{ project.Title }
 						}
 					}
@@ -27,12 +28,28 @@ templ Tasks(tasks []database.Task, projects []database.Project, projectID int) {
 				}
 			</div>
 		</div>
-		<div class="mt-6 space-y-4">
-			for _, task := range tasks {
-				@TaskRow(task)
-			}
-		</div>
+		@TasksColumns(tasks, false)
 	}
+}
+
+templ TasksFilter(filter string) {
+	<div id="filter" class="dark:text-white text-sm" hx-swap-oob="true">
+		if filter != "" {
+			Filtering by <span class="font-bold">{ filter }</span>
+		}
+	</div>
+}
+
+templ TasksColumns(tasks []database.Task, swapOOB bool) {
+	<div
+		class="mt-6 space-y-4"
+		id="tasks"
+		hx-swap-oob?={ swapOOB }
+	>
+		for _, task := range tasks {
+			@TaskRow(task)
+		}
+	</div>
 }
 
 templ TaskRow(task database.Task) {
