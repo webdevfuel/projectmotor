@@ -7,7 +7,7 @@ import (
 
 templ Base() {
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang="en" class="dark">
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -15,6 +15,7 @@ templ Base() {
 			<link href="/static/output.css" rel="stylesheet"/>
 			<script src="/static/htmx.min.js"></script>
 			<script defer src="/static/alpine.min.js"></script>
+			<script src="/static/dropdown.js"></script>
 		</head>
 		<body class="dark:bg-slate-900">
 			@toast.Toast(toast.NewToastOpts())
