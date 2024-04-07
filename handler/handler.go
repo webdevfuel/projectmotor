@@ -92,3 +92,21 @@ func (h *Handler) Redirect(w http.ResponseWriter, url string) {
 func (h *Handler) ReplaceUrl(w http.ResponseWriter, url string) {
 	w.Header().Set("HX-Replace-Url", url)
 }
+
+func (h *Handler) IsHTMXRequest(r *http.Request) bool {
+	return r.Header.Get("Hx-Request") != ""
+}
+
+type URLQuery struct {
+	Value   string
+	IsEmpty bool
+}
+
+func (h *Handler) GetURLQuery(r *http.Request, key string) URLQuery {
+	value := r.URL.Query().Get(key)
+
+	return URLQuery{
+		Value:   value,
+		IsEmpty: value == "",
+	}
+}
