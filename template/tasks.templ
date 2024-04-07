@@ -35,7 +35,7 @@ templ Tasks(tasks []database.Task, projects []database.Project, filter string) {
 templ TasksFilter(filter string) {
 	<div id="filter" class="dark:text-white text-sm" hx-swap-oob="true">
 		if filter != "" {
-			Filtering by <span class="font-bold">{ filter }</span>
+			Filtering by ID: <span class="font-bold">{ filter }</span>
 		}
 	</div>
 }
