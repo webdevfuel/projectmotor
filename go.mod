@@ -3,7 +3,7 @@ module github.com/webdevfuel/projectmotor
 go 1.21.5
 
 require (
-	github.com/a-h/templ v0.2.543
+	github.com/a-h/templ v0.2.648
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-playground/form v3.1.4+incompatible
