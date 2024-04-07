@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/a-h/templ"
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -64,13 +63,13 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	projectID, err := strconv.Atoi(data.ProjectID)
+	projectID, err := util.Atoi32(data.ProjectID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
 	user := h.GetUserFromContext(r.Context())
-	err = h.TaskService.Create(data.Title, data.Description, int32(projectID), user.ID)
+	err = h.TaskService.Create(data.Title, data.Description, projectID, user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
@@ -155,7 +154,7 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) EditTask(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	id, _ := h.GetIDFromRequest(r, "id")
-	task, err := h.TaskService.Get(int32(id), user.ID)
+	task, err := h.TaskService.Get(id, user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return

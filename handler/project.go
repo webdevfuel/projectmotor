@@ -72,7 +72,7 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) EditProject(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	id, _ := h.GetIDFromRequest(r, "id")
-	project, err := h.ProjectService.Get(int32(id), user.ID)
+	project, err := h.ProjectService.Get(id, user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
@@ -88,7 +88,7 @@ func (h *Handler) EditProject(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ToggleProjectPublished(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	id, _ := h.GetIDFromRequest(r, "id")
-	project, err := h.ProjectService.TogglePublished(int32(id), user.ID)
+	project, err := h.ProjectService.TogglePublished(id, user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
@@ -126,7 +126,7 @@ func (h *Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 	var data UpdateProjectForm
 	id, _ := h.GetIDFromRequest(r, "id")
 	user := h.GetUserFromContext(r.Context())
-	project, err := h.ProjectService.Get(int32(id), user.ID)
+	project, err := h.ProjectService.Get(id, user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
@@ -145,7 +145,7 @@ func (h *Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	project, err = h.ProjectService.Update(int32(id), data.Title, data.Description, user.ID)
+	project, err = h.ProjectService.Update(id, data.Title, data.Description, user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
@@ -173,7 +173,7 @@ func (h *Handler) UpdateProject(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	id, _ := h.GetIDFromRequest(r, "id")
-	err := h.ProjectService.Delete(int32(id), user.ID)
+	err := h.ProjectService.Delete(id, user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
