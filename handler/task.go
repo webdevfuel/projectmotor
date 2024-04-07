@@ -11,6 +11,7 @@ import (
 	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/template"
 	"github.com/webdevfuel/projectmotor/template/toast"
+	"github.com/webdevfuel/projectmotor/util"
 	"github.com/webdevfuel/projectmotor/validator"
 )
 
@@ -78,15 +79,25 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
-	project := r.URL.Query().Get("project")
+	// get query param from url
+	project := h.GetURLQuery(r, "project")
+	// get user from context
 	user := h.GetUserFromContext(r.Context())
-	var htmx bool
-	if r.Header.Get("Hx-Request") != "" {
-		htmx = true
-	}
+	// initialize tasks slice
 	var tasks []database.Task
-	var projectID int
-	if project == "" {
+	// initialize project id int
+	var projectId int32
+	// check if project is empty
+	if !project.IsEmpty {
+		id, err := util.Atoi32(project.Value)
+		if err != nil {
+			h.Error(w, err, http.StatusInternalServerError)
+			return
+		}
+		projectId = id
+	}
+	// get appropriate tasks based on project id
+	if project.IsEmpty {
 		t, err := h.TaskService.GetAll(user.ID)
 		if err != nil {
 			h.Error(w, err, http.StatusInternalServerError)
@@ -94,46 +105,45 @@ func (h *Handler) GetTasks(w http.ResponseWriter, r *http.Request) {
 		}
 		tasks = t
 	} else {
-		id, err := strconv.Atoi(project)
-		if err != nil {
-			h.Error(w, err, http.StatusInternalServerError)
-			return
-		}
-		t, err := h.TaskService.GetAllByProjectID(user.ID, int32(id))
+		t, err := h.TaskService.GetAllByProjectID(user.ID, projectId)
 		if err != nil {
 			h.Error(w, err, http.StatusInternalServerError)
 			return
 		}
 		tasks = t
-		projectID = id
 	}
+	// get all projects
 	projects, err := h.ProjectService.GetAll(user.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
+	// filter based on project existing or not
 	var filter string
-	if project != "" {
-		filter = fmt.Sprintf("%d", projectID)
-	} else {
-		filter = ""
+	if !project.IsEmpty {
+		filter = fmt.Sprintf("%d", projectId)
 	}
+	// check if is htmx request and
+	// render component based on request being htmx or not
 	var component templ.Component
+	htmx := h.IsHTMXRequest(r)
 	if htmx {
 		component = template.TasksColumns(tasks, true)
-		if project == "" {
-			h.ReplaceUrl(w, "/tasks")
-		} else {
-			h.ReplaceUrl(w, fmt.Sprintf("/tasks?project=%d", projectID))
-		}
 	} else {
 		component = template.Tasks(tasks, projects, filter)
 	}
+	if htmx && project.IsEmpty {
+		h.ReplaceUrl(w, "/tasks")
+	} else if htmx && !project.IsEmpty {
+		h.ReplaceUrl(w, fmt.Sprintf("/tasks?project=%d", projectId))
+	}
+	// render component
 	err = component.Render(r.Context(), w)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
+	// override component with tasks filter and render it
 	component = template.TasksFilter(filter)
 	err = component.Render(r.Context(), w)
 	if err != nil {
