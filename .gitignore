@@ -1,3 +1,4 @@
 tmp/
 node_modules/
 *_templ.go
+static/
