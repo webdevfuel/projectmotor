@@ -9,11 +9,26 @@ const (
 	AsHyperlink
 )
 
+type Color int
+
+const (
+	Blue Color = iota
+	Red
+)
+
+type Size int
+
+const (
+	Sm Size = iota
+	Md
+	Lg
+)
+
 type Button struct {
 	Type       string
 	Disabled   bool
-	Color      string
-	Size       string
+	Color      Color
+	Size       Size
 	Attributes templ.Attributes
 	As         As
 	Href       string
@@ -23,8 +38,8 @@ func NewButton(opts ...func(*Button)) *Button {
 	b := &Button{
 		Type:       "button",
 		Disabled:   false,
-		Color:      "blue",
-		Size:       "md",
+		Color:      Blue,
+		Size:       Md,
 		Attributes: templ.Attributes{},
 		As:         AsButton,
 		Href:       "",
@@ -35,13 +50,13 @@ func NewButton(opts ...func(*Button)) *Button {
 	return b
 }
 
-func WithButtonColor(c string) func(*Button) {
+func WithButtonColor(c Color) func(*Button) {
 	return func(b *Button) {
 		b.Color = c
 	}
 }
 
-func WithButtonSize(s string) func(*Button) {
+func WithButtonSize(s Size) func(*Button) {
 	return func(b *Button) {
 		b.Size = s
 	}
@@ -106,18 +121,18 @@ func GenerateClassString(b *Button) string {
 	var classes []string
 
 	switch b.Color {
-	case "blue":
+	case Blue:
 		classes = append(classes, "border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
-	case "red":
+	case Red:
 		classes = append(classes, "border border-transparent bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
 	}
 
 	switch b.Size {
-	case "sm":
+	case Sm:
 		classes = append(classes, "py-2 px-3")
-	case "md":
+	case Md:
 		classes = append(classes, "py-3 px-4")
-	case "lg":
+	case Lg:
 		classes = append(classes, "p-4 sm:p-5")
 	}
 
