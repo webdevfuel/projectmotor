@@ -1,9 +1,45 @@
 package shared
 
-templ Dropdown(label string) {
+type Dropdown struct {
+	Attributes templ.Attributes
+	Label      string
+}
+
+func NewDropdown(opts ...func(*Dropdown)) *Dropdown {
+	d := &Dropdown{
+		Attributes: templ.Attributes{},
+	}
+	for _, o := range opts {
+		o(d)
+	}
+	return d
+}
+
+func WithDropdownAttribute(k string, v any) func(*Dropdown) {
+	return func(d *Dropdown) {
+		d.Attributes[k] = v
+	}
+}
+
+func WithDropdownLabel(l string) func(*Dropdown) {
+	return func(d *Dropdown) {
+		d.Label = l
+	}
+}
+
+func (d *Dropdown) Render(ctx context.Context, w io.Writer) error {
+	return dropdown(d).Render(ctx, w)
+}
+
+templ dropdown(d *Dropdown) {
 	<div class="hs-dropdown hs-dropdown-example relative inline-flex">
-		<button id="hs-dropdown-example" type="button" class="hs-dropdown-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800">
-			{ label }
+		<button
+			id="hs-dropdown-example"
+			type="button"
+			class="hs-dropdown-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
+			{ d.Attributes... }
+		>
+			{ d.Label }
 			<svg class="hs-dropdown-open:rotate-180 size-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="m6 9 6 6 6-6"></path>
 			</svg>
@@ -14,50 +50,60 @@ templ Dropdown(label string) {
 	</div>
 }
 
-type DropdownLinkOpts struct {
+type DropdownItemAs int
+
+const (
+	DropdownItemAsButton DropdownItemAs = iota
+	DropdownItemAsHyperlink
+)
+
+type DropdownItem struct {
+	As         DropdownItemAs
 	Attributes templ.Attributes
 }
 
-func NewDropdownLinkOpts() DropdownLinkOpts {
-	return DropdownLinkOpts{
+func NewDropdownItem(opts ...func(*DropdownItem)) *DropdownItem {
+	d := &DropdownItem{
+		As:         DropdownItemAsButton,
 		Attributes: templ.Attributes{},
+	}
+	for _, o := range opts {
+		o(d)
+	}
+	return d
+}
+
+func WithDropdownItemAttribute(k string, v any) func(*DropdownItem) {
+	return func(d *DropdownItem) {
+		d.Attributes[k] = v
 	}
 }
 
-func (opts DropdownLinkOpts) SetAttributes(attributes templ.Attributes) DropdownLinkOpts {
-	opts.Attributes = attributes
-	return opts
-}
-
-templ DropdownLink(opts DropdownLinkOpts) {
-	<a
-		class="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:bg-gray-700"
-		{ opts.Attributes... }
-	>
-		{ children... }
-	</a>
-}
-
-type DropdownButtonOpts struct {
-	Attributes templ.Attributes
-}
-
-func NewDropdownButtonOpts() DropdownButtonOpts {
-	return DropdownButtonOpts{
-		Attributes: templ.Attributes{},
+func WithDropdownItemAs(a DropdownItemAs) func(*DropdownItem) {
+	return func(d *DropdownItem) {
+		d.As = a
 	}
 }
 
-func (opts DropdownButtonOpts) SetAttributes(attributes templ.Attributes) DropdownButtonOpts {
-	opts.Attributes = attributes
-	return opts
+func (d *DropdownItem) Render(ctx context.Context, w io.Writer) error {
+	return dropdownItem(d).Render(ctx, w)
 }
 
-templ DropdownButton(opts DropdownButtonOpts) {
-	<button
-		class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:bg-gray-700"
-		{ opts.Attributes... }
-	>
-		{ children... }
-	</button>
+templ dropdownItem(d *DropdownItem) {
+	if d.As == DropdownItemAsHyperlink {
+		<a
+			class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:bg-gray-700"
+			{ d.Attributes... }
+		>
+			{ children... }
+		</a>
+	}
+	if d.As == DropdownItemAsButton {
+		<button
+			class="w-full flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-gray-800 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 dark:focus:bg-gray-700"
+			{ d.Attributes... }
+		>
+			{ children... }
+		</button>
+	}
 }

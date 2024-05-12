@@ -13,12 +13,20 @@ templ Tasks(tasks []database.Task, projects []database.Project, filter string) {
 			<h1 class="dark:text-white text-3xl font-bold">Tasks</h1>
 			<div class="flex items-center space-x-2.5">
 				@TasksFilter(filter)
-				@shared.Dropdown("Filter") {
-					@shared.DropdownButton(shared.DropdownButtonOpts{Attributes: templ.Attributes{"hx-get": "/tasks", "hx-target": "#tasks", "hx-swap": "outerHTML"}}) {
+				@shared.NewDropdown(shared.WithDropdownLabel("Filter")) {
+					@shared.NewDropdownItem(
+						shared.WithDropdownItemAttribute("hx-get", "/tasks"),
+						shared.WithDropdownItemAttribute("hx-target", "#tasks"),
+						shared.WithDropdownItemAttribute("hx-swap", "outerHTML"),
+					) {
 						All
 					}
 					for _, project := range projects {
-						@shared.DropdownButton(shared.DropdownButtonOpts{Attributes: templ.Attributes{"hx-get": fmt.Sprintf("/tasks?project=%d", project.ID), "hx-target": "#tasks", "hx-swap": "outerHTML"}}) {
+						@shared.NewDropdownItem(
+							shared.WithDropdownItemAttribute("hx-get", fmt.Sprintf("/tasks?project=%d", project.ID)),
+							shared.WithDropdownItemAttribute("hx-target", "#tasks"),
+							shared.WithDropdownItemAttribute("hx-swap", "outerHTML"),
+						) {
 							{ project.Title }
 						}
 					}
