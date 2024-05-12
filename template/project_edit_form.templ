@@ -51,9 +51,7 @@ templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice,
 			}
 			@shared.NewButton(
 				shared.WithButtonColor("red"),
-				shared.WithButtonAttributes(templ.Attributes{
-					"hx-delete": fmt.Sprintf("/projects/%d", project.ID),
-				}),
+				shared.WithButtonAttribute("hx-delete", fmt.Sprintf("/projects/%d", project.ID)),
 			) {
 				Delete project
 			}

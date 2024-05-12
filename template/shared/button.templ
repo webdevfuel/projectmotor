@@ -59,9 +59,9 @@ func WithButtonType(t string) func(*Button) {
 	}
 }
 
-func WithButtonAttributes(a templ.Attributes) func(*Button) {
+func WithButtonAttribute(k string, v any) func(*Button) {
 	return func(b *Button) {
-		b.Attributes = a
+		b.Attributes[k] = v
 	}
 }
 
