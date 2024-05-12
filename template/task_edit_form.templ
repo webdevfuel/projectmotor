@@ -44,12 +44,15 @@ templ TaskEditForm(task database.Task, errors validator.ValidatedSlice) {
 			</div>
 		}
 		@modal.ModalFooter() {
-			@shared.Button(shared.NewButtonOpts().SetType("submit")) {
+			@shared.NewButton(shared.WithButtonType("submit")) {
 				Save task
 			}
-			@shared.Button(shared.NewButtonOpts().SetColor("red").SetAttributes(templ.Attributes{
-				"hx-delete": fmt.Sprintf("/tasks/%d", task.ID),
-			})) {
+			@shared.NewButton(
+				shared.WithButtonColor("red"),
+				shared.WithButtonAttributes(templ.Attributes{
+					"hx-delete": fmt.Sprintf("/tasks/%d", task.ID),
+				}),
+			) {
 				Delete task
 			}
 		}

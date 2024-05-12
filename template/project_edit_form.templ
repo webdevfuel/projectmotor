@@ -46,12 +46,15 @@ templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice,
 			<span class="error">{ errors.GetByKey("Description").Error }</span>
 		</div>
 		<div class="flex items-center justify-between">
-			@shared.Button(shared.NewButtonOpts().SetType("submit")) {
+			@shared.NewButton(shared.WithButtonType("submit")) {
 				Save project
 			}
-			@shared.Button(shared.NewButtonOpts().SetColor("red").SetAttributes(templ.Attributes{
-				"hx-delete": fmt.Sprintf("/projects/%d", project.ID),
-			})) {
+			@shared.NewButton(
+				shared.WithButtonColor("red"),
+				shared.WithButtonAttributes(templ.Attributes{
+					"hx-delete": fmt.Sprintf("/projects/%d", project.ID),
+				}),
+			) {
 				Delete project
 			}
 		</div>
