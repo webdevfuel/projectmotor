@@ -2,35 +2,35 @@ package shared
 
 import "strings"
 
-type As int
+type ButtonAs int
 
 const (
-	AsButton As = iota
-	AsHyperlink
+	ButtonAsButton ButtonAs = iota
+	ButtonAsHyperlink
 )
 
-type Color int
+type ButtonColor int
 
 const (
-	Blue Color = iota
-	Red
+	ButtonBlue ButtonColor = iota
+	ButtonRed
 )
 
-type Size int
+type ButtonSize int
 
 const (
-	Sm Size = iota
-	Md
-	Lg
+	ButtonSm ButtonSize = iota
+	ButtonMd
+	ButtonLg
 )
 
 type Button struct {
 	Type       string
 	Disabled   bool
-	Color      Color
-	Size       Size
+	Color      ButtonColor
+	Size       ButtonSize
 	Attributes templ.Attributes
-	As         As
+	As         ButtonAs
 	Href       string
 }
 
@@ -38,10 +38,10 @@ func NewButton(opts ...func(*Button)) *Button {
 	b := &Button{
 		Type:       "button",
 		Disabled:   false,
-		Color:      Blue,
-		Size:       Md,
+		Color:      ButtonBlue,
+		Size:       ButtonMd,
 		Attributes: templ.Attributes{},
-		As:         AsButton,
+		As:         ButtonAsButton,
 		Href:       "",
 	}
 	for _, o := range opts {
@@ -50,13 +50,13 @@ func NewButton(opts ...func(*Button)) *Button {
 	return b
 }
 
-func WithButtonColor(c Color) func(*Button) {
+func WithButtonColor(c ButtonColor) func(*Button) {
 	return func(b *Button) {
 		b.Color = c
 	}
 }
 
-func WithButtonSize(s Size) func(*Button) {
+func WithButtonSize(s ButtonSize) func(*Button) {
 	return func(b *Button) {
 		b.Size = s
 	}
@@ -80,7 +80,7 @@ func WithButtonAttribute(k string, v any) func(*Button) {
 	}
 }
 
-func WithButtonAs(a As) func(*Button) {
+func WithButtonAs(a ButtonAs) func(*Button) {
 	return func(button *Button) {
 		button.As = a
 	}
@@ -97,7 +97,7 @@ func (b *Button) Render(ctx context.Context, w io.Writer) error {
 }
 
 templ button(b *Button) {
-	if b.As == AsButton {
+	if b.As == ButtonAsButton {
 		<button
 			class={ GenerateClassString(b) }
 			type={ b.Type }
@@ -106,7 +106,7 @@ templ button(b *Button) {
 			{ children... }
 		</button>
 	}
-	if b.As == AsHyperlink {
+	if b.As == ButtonAsHyperlink {
 		<a
 			class={ GenerateClassString(b) }
 			href={ templ.SafeURL(b.Href) }
@@ -121,18 +121,18 @@ func GenerateClassString(b *Button) string {
 	var classes []string
 
 	switch b.Color {
-	case Blue:
+	case ButtonBlue:
 		classes = append(classes, "border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
-	case Red:
+	case ButtonRed:
 		classes = append(classes, "border border-transparent bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600")
 	}
 
 	switch b.Size {
-	case Sm:
+	case ButtonSm:
 		classes = append(classes, "py-2 px-3")
-	case Md:
+	case ButtonMd:
 		classes = append(classes, "py-3 px-4")
-	case Lg:
+	case ButtonLg:
 		classes = append(classes, "p-4 sm:p-5")
 	}
 

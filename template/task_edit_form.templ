@@ -48,7 +48,7 @@ templ TaskEditForm(task database.Task, errors validator.ValidatedSlice) {
 				Save task
 			}
 			@shared.NewButton(
-				shared.WithButtonColor(shared.Red),
+				shared.WithButtonColor(shared.ButtonRed),
 				shared.WithButtonAttribute("hx-delete", fmt.Sprintf("/tasks/%d", task.ID)),
 			) {
 				Delete task

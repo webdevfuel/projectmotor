@@ -8,7 +8,7 @@ import (
 templ Login() {
 	@layout.Guest() {
 		@shared.NewButton(
-			shared.WithButtonAs(shared.AsHyperlink),
+			shared.WithButtonAs(shared.ButtonAsHyperlink),
 			shared.WithButtonHref("/oauth/github/login"),
 		) {
 			Login with GitHub

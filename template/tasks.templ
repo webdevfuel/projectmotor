@@ -32,7 +32,7 @@ templ Tasks(tasks []database.Task, projects []database.Project, filter string) {
 					}
 				}
 				@shared.NewButton(
-					shared.WithButtonAs(shared.AsHyperlink),
+					shared.WithButtonAs(shared.ButtonAsHyperlink),
 					shared.WithButtonHref("/tasks/new"),
 				) {
 					New task
