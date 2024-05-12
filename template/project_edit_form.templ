@@ -46,7 +46,7 @@ templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice,
 			<span class="error">{ errors.GetByKey("Description").Error }</span>
 		</div>
 		<div class="flex items-center justify-between">
-			@shared.NewButton(shared.WithButtonType("submit")) {
+			@shared.NewButton(shared.WithButtonType(shared.ButtonSubmit)) {
 				Save project
 			}
 			@shared.NewButton(

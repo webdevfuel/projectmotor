@@ -15,7 +15,7 @@ templ ProjectNewForm(errors validator.ValidatedSlice) {
 			<textarea id="description" name="description" class="input">{ errors.GetByKey("Description").Value }</textarea>
 			<span class="error">{ errors.GetByKey("Description").Error }</span>
 		</div>
-		@shared.NewButton(shared.WithButtonType("submit")) {
+		@shared.NewButton(shared.WithButtonType(shared.ButtonSubmit)) {
 			New project
 		}
 	</form>

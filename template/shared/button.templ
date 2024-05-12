@@ -24,8 +24,25 @@ const (
 	ButtonLg
 )
 
+type ButtonType int
+
+const (
+	ButtonButton ButtonType = iota
+	ButtonSubmit
+)
+
+func (b ButtonType) String() string {
+	if b == ButtonButton {
+		return "button"
+	}
+	if b == ButtonSubmit {
+		return "submit"
+	}
+	return ""
+}
+
 type Button struct {
-	Type       string
+	Type       ButtonType
 	Disabled   bool
 	Color      ButtonColor
 	Size       ButtonSize
@@ -36,7 +53,7 @@ type Button struct {
 
 func NewButton(opts ...func(*Button)) *Button {
 	b := &Button{
-		Type:       "button",
+		Type:       ButtonButton,
 		Disabled:   false,
 		Color:      ButtonBlue,
 		Size:       ButtonMd,
@@ -68,7 +85,7 @@ func WithButtonDisabled(d bool) func(*Button) {
 	}
 }
 
-func WithButtonType(t string) func(*Button) {
+func WithButtonType(t ButtonType) func(*Button) {
 	return func(b *Button) {
 		b.Type = t
 	}
@@ -100,7 +117,7 @@ templ button(b *Button) {
 	if b.As == ButtonAsButton {
 		<button
 			class={ GenerateClassString(b) }
-			type={ b.Type }
+			type={ b.Type.String() }
 			{ b.Attributes... }
 		>
 			{ children... }

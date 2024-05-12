@@ -29,7 +29,7 @@ templ TaskNewForm(errors validator.ValidatedSlice, projects []database.Project) 
 			</select>
 			<span class="error">{ errors.GetByKey("ProjectID").Error }</span>
 		</div>
-		@shared.NewButton(shared.WithButtonType("submit")) {
+		@shared.NewButton(shared.WithButtonType(shared.ButtonSubmit)) {
 			New task
 		}
 	</form>

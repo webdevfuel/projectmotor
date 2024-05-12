@@ -44,7 +44,7 @@ templ TaskEditForm(task database.Task, errors validator.ValidatedSlice) {
 			</div>
 		}
 		@modal.ModalFooter() {
-			@shared.NewButton(shared.WithButtonType("submit")) {
+			@shared.NewButton(shared.WithButtonType(shared.ButtonSubmit)) {
 				Save task
 			}
 			@shared.NewButton(
