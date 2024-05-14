@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir ./static
+mkdir -p ./static
 
 # HTMX
 wget https://unpkg.com/htmx.org/dist/htmx.min.js -O ./static/htmx.min.js
