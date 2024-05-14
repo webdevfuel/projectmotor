@@ -20,10 +20,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = database.SetupDB()
-	if err != nil {
-		log.Fatal(err)
-	}
 	h := handler.NewHandler(handler.HandlerOptions{
 		DB:    db,
 		Store: store,
