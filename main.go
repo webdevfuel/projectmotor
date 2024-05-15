@@ -40,7 +40,7 @@ func main() {
 // Add routes here where user has to be logged in
 func protectedRouter(h *handler.Handler) func(chi.Router) {
 	return func(r chi.Router) {
-		r.Use(ProtectedCtx(h))
+		r.Use(protectedCtx(h))
 		r.Get("/projects", h.GetProjects)
 		r.Post("/projects", h.CreateProject)
 		r.Get("/projects/new", h.NewProject)
@@ -68,7 +68,7 @@ func redirectToLogin(w http.ResponseWriter, r *http.Request) {
 // Protected context
 //
 // Middleware checks if user exists within current session
-func ProtectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
+func protectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			session, err := h.GetSessionStore(r)
