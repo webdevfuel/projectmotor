@@ -8,6 +8,8 @@ import (
 
 // An Account relates OAuth providers to users, to enable one user associating
 // with multiple OAuth providers and accounts in the future.
+//
+// table: "accounts"
 type Account struct {
 	// ID is the primary key of the "accounts" table.
 	ID string `json:"id" db:"id"`
