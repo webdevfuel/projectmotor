@@ -24,7 +24,6 @@ func NewTestServer() (*handler.Handler, *httptest.Server) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
 	h := handler.NewHandler(handler.HandlerOptions{
 		DB:    db,
 		Store: store,
