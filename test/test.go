@@ -1,25 +1,34 @@
 package test
 
 import (
+	"log"
 	"net/http/httptest"
 	"os"
 
 	"github.com/gorilla/sessions"
-	"github.com/jmoiron/sqlx"
+	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/handler"
 	"github.com/webdevfuel/projectmotor/router"
 )
 
 var store *sessions.CookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
-// NewTestServer returns a new httptest.Server
+// NewTestServer returns a new handler.Handler and httptest.Server
 //
 // Usually initialized before a set of requests as part of a test.
-func NewTestServer(db *sqlx.DB) *httptest.Server {
+//
+// We return the handler to aid with doing assertions on the database, since
+// it's easier than creating abstractions just for testing.
+func NewTestServer() (*handler.Handler, *httptest.Server) {
+	db, err := database.OpenDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 	h := handler.NewHandler(handler.HandlerOptions{
 		DB:    db,
 		Store: store,
 	})
 	r := router.NewRouter(h)
-	return httptest.NewServer(r)
+	return h, httptest.NewServer(r)
 }
