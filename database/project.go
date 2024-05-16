@@ -7,6 +7,8 @@ import (
 
 // A Project enables splitting tasks into different categories and
 // sharing them all at once with other users.
+//
+// table: "projects"
 type Project struct {
 	// ID is the primary key of the "projects" table.
 	ID int32 `db:"id"`
