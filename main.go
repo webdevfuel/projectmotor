@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -13,7 +14,16 @@ import (
 	"github.com/webdevfuel/projectmotor/handler"
 )
 
-var store = sessions.NewCookieStore([]byte("9eb88ac21007908b8a192a6b842ad097622882a84560ddf1ba0c27702836a9b4"))
+func getCookieSessionKey() string {
+	sessionKey := os.Getenv("SESSION_KEY")
+	if sessionKey == "" {
+		log.Fatal("environment variable SESSION_KEY must be set")
+		return ""
+	}
+	return sessionKey
+}
+
+var store = sessions.NewCookieStore([]byte(getCookieSessionKey()))
 
 func main() {
 	db, err := database.OpenDB()
