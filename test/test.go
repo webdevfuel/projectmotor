@@ -1,8 +1,8 @@
-package main
+package test
 
 import (
 	"log"
-	"net/http"
+	"net/http/httptest"
 	"os"
 
 	"github.com/gorilla/sessions"
@@ -11,18 +11,12 @@ import (
 	"github.com/webdevfuel/projectmotor/router"
 )
 
-func getCookieSessionKey() string {
-	sessionKey := os.Getenv("SESSION_KEY")
-	if sessionKey == "" {
-		log.Fatal("environment variable SESSION_KEY must be set")
-		return ""
-	}
-	return sessionKey
-}
+var store *sessions.CookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
-var store = sessions.NewCookieStore([]byte(getCookieSessionKey()))
-
-func main() {
+// NewTestServer returns a new httptest.Server
+//
+// Usually initialized before a set of requests as part of a test.
+func NewTestServer() *httptest.Server {
 	db, err := database.OpenDB()
 	if err != nil {
 		log.Fatal(err)
@@ -33,5 +27,5 @@ func main() {
 		Store: store,
 	})
 	r := router.NewRouter(h)
-	http.ListenAndServe("localhost:3000", r)
+	return httptest.NewServer(r)
 }
