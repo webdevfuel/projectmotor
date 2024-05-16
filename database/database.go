@@ -1,24 +1,26 @@
 package database
 
 import (
+	"errors"
+	"os"
+
 	"github.com/jmoiron/sqlx"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-var DB *sqlx.DB
-
-const DATABASE_URL string = "postgres://emanuel@localhost:5432/projectmotor_dev?search_path=public&sslmode=disable"
-
+// OpenDB returns a pointer to sqlx.DB and the first encountered error
+// when attemping to establish a connection to the database url.
+//
+// Environment variable DATABASE_URL must be set.
 func OpenDB() (*sqlx.DB, error) {
-	conn, err := sqlx.Connect("pgx", DATABASE_URL)
+	databaseUrl := os.Getenv("DATABASE_URL")
+	if databaseUrl == "" {
+		return nil, errors.New("environment variable DATABASE_URL must be set")
+	}
+	conn, err := sqlx.Connect("pgx", databaseUrl)
 	if err != nil {
 		return conn, err
 	}
-	DB = conn
 	return conn, nil
-}
-
-func CloseDB() error {
-	return DB.Close()
 }
