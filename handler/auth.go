@@ -58,7 +58,7 @@ func (h *Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// Initialise github.GitHubOAuth2 instance
-		gh := github.New(token.AccessToken)
+		gh := github.NewGitHubOAuth2(token.AccessToken)
 		// Fetch data from GitHub's API
 		data, err := gh.GetData()
 		if err != nil {
