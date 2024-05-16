@@ -10,6 +10,7 @@ import (
 	"github.com/webdevfuel/projectmotor/handler"
 )
 
+// NewRouter returns a new chi.Mux router with all of the default middleware.
 func NewRouter(h *handler.Handler) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
