@@ -23,7 +23,8 @@ func SetTestUserSession(userId int32) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	setCookie := w.Result().Header.Get("set-cookie")
+	res := w.Result()
+	setCookie := res.Header.Get("set-cookie")
 	if setCookie == "" {
 		return "", errors.New("set cookie cannot be an empty string")
 	}
