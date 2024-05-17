@@ -50,7 +50,7 @@ func protectedRouter(h *handler.Handler) func(chi.Router) {
 //
 // Use this when session user doesn't exist
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "http://localhost:3000/login", http.StatusSeeOther)
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 // Protected context
