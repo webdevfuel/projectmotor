@@ -11,7 +11,7 @@ import (
 // where %s is the session string with data about a user.
 //
 // It uses the test session.CookieStore and stores the given userId with key "userID".
-func SetTestUserSession(userId int) (string, error) {
+func SetTestUserSession(userId int32) (string, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "http://localhost:3000", nil)
 	session, err := store.Get(r, "_projectmotor_session")
