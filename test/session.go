@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+// SetTestUserSession returns a cookie with the format `_projectmotor_session=%s;`
+// where %s is the session string with a user.
+//
+// It uses the test session.CookieStore and stores the value 1 with key "userID".
 func SetTestUserSession() (string, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", "http://localhost:3000", nil)
