@@ -10,6 +10,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// ResetAndSeedDB returns the first encountered when dropping and creating all
+// database tables.
+//
+// It looks inside the "database/migrations" directory for all ".down." and ".up."
+// files, and runs all statements separated by the separator "--> statement-breakpoint".
+//
+// It runs "down" migrations in desc order and "up" in asc order.
+//
+// It runs all statements inside "database/seeds" directory to seed the
+// database for tests.
 func ResetAndSeedDB(db *sqlx.DB) error {
 	entries, err := os.ReadDir("./database/migrations/")
 	if err != nil {
