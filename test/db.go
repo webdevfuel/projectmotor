@@ -10,7 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// ResetAndSeedDB returns the first encountered when dropping and creating all
+// ResetAndSeedDB returns the first encountered error when dropping and creating all
 // database tables.
 //
 // It looks inside the "database/migrations" directory for all ".down." and ".up."
