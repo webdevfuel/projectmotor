@@ -33,6 +33,10 @@ func ResetAndSeedDB(db *sqlx.DB) error {
 	if err != nil {
 		return err
 	}
+	err = seedAllTables(db)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -45,7 +49,7 @@ func dropAllTables(entries []fs.DirEntry, db *sqlx.DB) error {
 	}
 	sort.Sort(sort.Reverse(sort.StringSlice(files)))
 	for _, file := range files {
-		err := runAllStatements(file, db)
+		err := runAllStatements(file, migration, db)
 		if err != nil {
 			return err
 		}
@@ -61,7 +65,7 @@ func createAllTables(entries []fs.DirEntry, db *sqlx.DB) error {
 		}
 	}
 	for _, file := range files {
-		err := runAllStatements(file, db)
+		err := runAllStatements(file, migration, db)
 		if err != nil {
 			return err
 		}
@@ -69,8 +73,39 @@ func createAllTables(entries []fs.DirEntry, db *sqlx.DB) error {
 	return nil
 }
 
-func runAllStatements(file string, db *sqlx.DB) error {
-	b, err := os.ReadFile(fmt.Sprintf("./database/migrations/%s", file))
+func seedAllTables(db *sqlx.DB) error {
+	entries, err := os.ReadDir("./database/seeds/")
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		err := runAllStatements(entry.Name(), seed, db)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type statetment int
+
+const (
+	migration statetment = iota
+	seed
+)
+
+func getDirectory(statement statetment) string {
+	if statement == migration {
+		return "migrations"
+	}
+	if statement == seed {
+		return "seeds"
+	}
+	return ""
+}
+
+func runAllStatements(file string, statement statetment, db *sqlx.DB) error {
+	b, err := os.ReadFile(fmt.Sprintf("./database/%s/%s", getDirectory(statement), file))
 	if err != nil {
 		return err
 	}
