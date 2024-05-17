@@ -44,7 +44,7 @@ func TestDashboard(t *testing.T) {
 		body := string(data)
 		assert := assert.New(t)
 		assert.Equal(200, res.StatusCode)
-		assert.Contains(body, "Welcome back,")
+		assert.Contains(body, "Welcome back, hello@webdevfuel.com")
 		assert.Contains(body, "Dashboard")
 		assert.Contains(body, "Projects")
 		assert.Contains(body, "Tasks")
