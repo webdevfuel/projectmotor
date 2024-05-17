@@ -11,12 +11,18 @@ import (
 )
 
 func TestDashboard(t *testing.T) {
-	_, server := test.NewTestServer()
+	handler, server := test.NewTestServer()
 	defer server.Close()
 
 	cookie, err := test.SetTestUserSession(1)
 	if err != nil {
 		t.Errorf("error setting user test session %s", err)
+		return
+	}
+
+	err = test.ResetAndSeedDB(handler.DB)
+	if err != nil {
+		t.Errorf("error resetting and seeding database %s", err)
 		return
 	}
 
