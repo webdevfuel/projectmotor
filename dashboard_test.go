@@ -14,7 +14,7 @@ func TestDashboard(t *testing.T) {
 	handler, server := test.NewTestServer()
 	defer server.Close()
 
-	cookie, err := test.SetTestUserSession(1)
+	cookie, err := test.SetTestUserSession(server, 1)
 	if err != nil {
 		t.Errorf("error setting user test session %s", err)
 		return
