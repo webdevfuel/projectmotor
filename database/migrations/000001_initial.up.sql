@@ -5,6 +5,7 @@ CREATE TABLE "users" (
     "avatar" text
 );
 
+--> statement-breakpoint
 CREATE TABLE "accounts" (
     "id" integer PRIMARY KEY,
     "user_id" integer NOT NULL,
