@@ -13,9 +13,11 @@ import (
 func TestDashboard(t *testing.T) {
 	_, server := test.NewTestServer()
 	defer server.Close()
-	session, err := test.GetTestSession()
+
+	cookie, err := test.SetTestUserSession()
 	if err != nil {
-		t.Errorf("error getting test session %f", err)
+		t.Errorf("error setting user test session %s", err)
+		return
 	}
 
 	t.Run("navigating to dashboard page redirects to and renders login page", func(t *testing.T) {
@@ -29,7 +31,6 @@ func TestDashboard(t *testing.T) {
 
 	t.Run("navigating to dashboard page renders it", func(t *testing.T) {
 		req, _ := http.NewRequest("GET", fmt.Sprintf("%s/", server.URL), nil)
-		cookie := fmt.Sprintf("_projectmotor_session=%s;", session)
 		req.Header.Set("cookie", cookie)
 		client := &http.Client{}
 		res, _ := client.Do(req)
