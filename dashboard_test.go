@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"io"
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,21 +24,23 @@ func TestDashboard(t *testing.T) {
 	}
 
 	t.Run("navigating to dashboard page redirects to and renders login page", func(t *testing.T) {
-		res, _ := http.Get(fmt.Sprintf("%s/", server.URL))
-		data, _ := io.ReadAll(res.Body)
-		body := string(data)
+		req := test.NewRequest(
+			test.WithUrl(server.URL),
+		)
+		res := test.Do(req)
+		body := test.Body(res)
 		assert := assert.New(t)
 		assert.Equal(200, res.StatusCode)
 		assert.Contains(body, "Login with GitHub")
 	})
 
 	t.Run("navigating to dashboard page renders it", func(t *testing.T) {
-		req, _ := http.NewRequest("GET", fmt.Sprintf("%s/", server.URL), nil)
-		req.Header.Set("cookie", cookie)
-		client := &http.Client{}
-		res, _ := client.Do(req)
-		data, _ := io.ReadAll(res.Body)
-		body := string(data)
+		req := test.NewRequest(
+			test.WithUrl(server.URL),
+			test.WithAuthentication(test.Authenticated, cookie),
+		)
+		res := test.Do(req)
+		body := test.Body(res)
 		assert := assert.New(t)
 		assert.Equal(200, res.StatusCode)
 		assert.Contains(body, "Welcome back, hello@webdevfuel.com")
