@@ -58,6 +58,14 @@ type TestRequest struct {
 	Header         http.Header
 }
 
+// NewRequest returns a http.Request build from provided TestRequest options.
+//
+// An example of usage inside a test:
+//
+//	request := test.NewRequest(
+//	    test.WithUrl("/"),
+//	    test.WithAuthentication(test.Authenticated, "")
+//	)
 func NewRequest(options ...func(*TestRequest)) *http.Request {
 	tr := &TestRequest{
 		URL:            "",
@@ -74,24 +82,32 @@ func NewRequest(options ...func(*TestRequest)) *http.Request {
 	return req
 }
 
+// WithUrl returns a function that sets the url
+// on a TestRequest.
 func WithUrl(url string) func(*TestRequest) {
 	return func(r *TestRequest) {
 		r.URL = url
 	}
 }
 
+// WithUrl returns a function that sets the body
+// on a TestRequest.
 func WithBody(body []byte) func(*TestRequest) {
 	return func(r *TestRequest) {
 		r.Body = body
 	}
 }
 
+// WithUrl returns a function that sets the method
+// on a TestRequest.
 func WithMethod(method Method) func(*TestRequest) {
 	return func(r *TestRequest) {
 		r.Method = method
 	}
 }
 
+// WithUrl returns a function that sets the authentication
+// and cookie/session values on a TestRequest.
 func WithAuthentication(authentication Authentication, values ...string) func(*TestRequest) {
 	return func(r *TestRequest) {
 		r.Authentication = authentication
@@ -108,12 +124,15 @@ func WithAuthentication(authentication Authentication, values ...string) func(*T
 	}
 }
 
+// Do makes a request with the default http client and
+// returns the response.
 func Do(req *http.Request) *http.Response {
-	client := &http.Client{}
-	response, _ := client.Do(req)
+	response, _ := http.DefaultClient.Do(req)
 	return response
 }
 
+// Body reads the body from the provided response
+// and returns the string value.
 func Body(res *http.Response) string {
 	data, _ := io.ReadAll(res.Body)
 	body := string(data)
