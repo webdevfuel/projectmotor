@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-// SetTestUserSession returns a cookie with the format `_projectmotor_session=%s;`
+// SetUserSession returns a cookie with the format `_projectmotor_session=%s;`
 // where %s is the session string with data about a user.
 //
 // It uses the test session.CookieStore and stores the given userId with key "userID".
-func SetTestUserSession(server *httptest.Server, userId int32) (string, error) {
+func SetUserSession(server *httptest.Server, userId int32) (string, error) {
 	w := httptest.NewRecorder()
 	r, _ := http.NewRequest("GET", server.URL, nil)
 	session, err := store.Get(r, "_projectmotor_session")

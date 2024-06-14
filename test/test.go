@@ -13,13 +13,13 @@ import (
 
 var store *sessions.CookieStore = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
-// NewTestServer returns a new handler.Handler and httptest.Server
+// NewServer returns a new handler.Handler and httptest.Server
 //
 // Usually initialized before a set of requests as part of a test.
 //
 // We return the handler to aid with doing assertions on the database, since
 // it's easier than creating abstractions just for testing.
-func NewTestServer() (*handler.Handler, *httptest.Server) {
+func NewServer() (*handler.Handler, *httptest.Server) {
 	db, err := database.OpenDB()
 	if err != nil {
 		log.Fatal(err)
