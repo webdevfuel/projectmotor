@@ -3,7 +3,8 @@ module github.com/webdevfuel/projectmotor
 go 1.21.5
 
 require (
-	github.com/a-h/templ v0.2.680
+	github.com/PuerkitoBio/goquery v1.8.1
+	github.com/a-h/templ v0.2.747
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-playground/form v3.1.4+incompatible
@@ -15,6 +16,7 @@ require (
 )
 
 require (
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
@@ -25,7 +27,8 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
