@@ -1,6 +1,8 @@
 package github
 
 import (
+	"os"
+
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
@@ -10,8 +12,8 @@ import (
 //
 // It initializes the oauth2 package Config with provided values.
 var Config = &oauth2.Config{
-	ClientID:     "98a6e6f797f9db728c6e",
-	ClientSecret: "6391fd493bae19758df67538ae000a01172f6b9e",
+	ClientID:     os.Getenv("GITHUB_CLIENT_ID"),
+	ClientSecret: os.Getenv("GITHUB_CLIENT_SECRET"),
 	Scopes:       []string{"read:user", "user:email"},
 	Endpoint:     github.Endpoint,
 }
