@@ -1,9 +1,9 @@
-version: '3'
+version: "3"
 
 tasks:
   migrate-create:
     cmds:
-      - 'migrate create -ext sql -dir database/migrations -seq {{.CLI_ARGS}}'
+      - "migrate create -ext sql -dir database/migrations -seq {{.CLI_ARGS}}"
     silent: true
   migrate-up:
     cmds:
@@ -16,4 +16,8 @@ tasks:
       - migrate -database '{{.DATABASE_URL}}' -path database/migrations down
     requires:
       vars: [DATABASE_URL]
+    silent: true
+  test:
+    cmds:
+      - templ generate && go test ./... -count=1
     silent: true
