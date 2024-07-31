@@ -1,7 +1,9 @@
 package template
 
-import "github.com/webdevfuel/projectmotor/validator"
-import "github.com/webdevfuel/projectmotor/template/shared"
+import (
+	"github.com/webdevfuel/projectmotor/template/shared"
+	"github.com/webdevfuel/projectmotor/validator"
+)
 
 templ ProjectNewForm(errors validator.ValidatedSlice) {
 	<form class="mt-6 space-y-4" hx-post="/projects" hx-swap="outerHTML">
