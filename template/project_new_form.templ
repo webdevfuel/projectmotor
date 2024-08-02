@@ -6,7 +6,7 @@ import (
 )
 
 templ ProjectNewForm(errors validator.ValidatedSlice) {
-	<form class="mt-6 space-y-4" hx-post="/projects" hx-swap="outerHTML">
+	<form id="project-form" class="mt-6 space-y-4" hx-post="/projects" hx-swap="outerHTML">
 		<div>
 			<label for="title" class="label">Title (required)</label>
 			<input type="text" value={ errors.GetByKey("Title").Value } id="title" name="title" class="input"/>
