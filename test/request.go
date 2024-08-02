@@ -3,22 +3,44 @@ package test
 import (
 	"io"
 	"net/http"
+	"net/url"
+	"strings"
+
+	"github.com/go-playground/form"
 )
 
+var encoder *form.Encoder
+
+// Method is a int representation of HTTP methods, starting with Get at 0 and ending with Patch at 8.
 type Method int
 
 const (
+	// GET Method
 	Get Method = iota
+	// HEAD Method
 	Head
+	// POST Method
 	Post
+	// PUT Method
 	Put
+	// DELETE Method
 	Delete
+	// CONNECT Method
 	Connect
+	// OPTIONS Method
 	Options
+	// TRACE Method
 	Trace
+	// PATCH Method
 	Patch
 )
 
+// Build returns a string matching the HTTP method.
+//
+// An example:
+//
+//	log.Println(method.Get.Build())
+//	"GET"
 func (method Method) Build() string {
 	switch method {
 	case Get:
@@ -43,18 +65,24 @@ func (method Method) Build() string {
 	return ""
 }
 
+// Method is a int representation of authentication states for tests (authenticated and unauthenticated).
 type Authentication int
 
 const (
+	// Authenticated (logged in) state for tests
 	Authenticated Authentication = iota
+	// Unauthenticated (logged out) state for tests
 	Unauthenticated
 )
 
+// TestRequest is a representation of different options of a test request, used to build a http.Request from it.
 type TestRequest struct {
 	URL            string
 	Body           []byte
 	Method         Method
 	Authentication Authentication
+	UrlValues      url.Values
+	IsForm         bool
 	Header         http.Header
 }
 
@@ -77,7 +105,12 @@ func NewRequest(options ...func(*TestRequest)) *http.Request {
 	for _, o := range options {
 		o(tr)
 	}
-	req, _ := http.NewRequest(tr.Method.Build(), tr.URL, nil)
+	req := &http.Request{}
+	if tr.IsForm {
+		req, _ = http.NewRequest(tr.Method.Build(), tr.URL, strings.NewReader(tr.UrlValues.Encode()))
+	} else {
+		req, _ = http.NewRequest(tr.Method.Build(), tr.URL, nil)
+	}
 	req.Header = tr.Header
 	return req
 }
@@ -90,7 +123,7 @@ func WithUrl(url string) func(*TestRequest) {
 	}
 }
 
-// WithUrl returns a function that sets the body
+// WithBody returns a function that sets the body
 // on a TestRequest.
 func WithBody(body []byte) func(*TestRequest) {
 	return func(r *TestRequest) {
@@ -98,7 +131,7 @@ func WithBody(body []byte) func(*TestRequest) {
 	}
 }
 
-// WithUrl returns a function that sets the method
+// WithMethod returns a function that sets the method
 // on a TestRequest.
 func WithMethod(method Method) func(*TestRequest) {
 	return func(r *TestRequest) {
@@ -106,7 +139,7 @@ func WithMethod(method Method) func(*TestRequest) {
 	}
 }
 
-// WithUrl returns a function that sets the authentication
+// WithAuthentication returns a function that sets the authentication
 // and cookie/session values on a TestRequest.
 func WithAuthentication(authentication Authentication, values ...string) func(*TestRequest) {
 	return func(r *TestRequest) {
@@ -121,6 +154,30 @@ func WithAuthentication(authentication Authentication, values ...string) func(*T
 			r.Header.Del("cookie")
 
 		}
+	}
+}
+
+// FormValue is a representation of a key-value pair
+// for test requests.
+type FormValue struct {
+	Key   string
+	Value string
+}
+
+// WithFormValues returns a function that sets the url values
+// and content-type header as application/x-www-form-urlencoded
+// on a TestRequest.
+func WithFormValues(values ...FormValue) func(*TestRequest) {
+	return func(r *TestRequest) {
+		r.UrlValues = url.Values{}
+
+		r.IsForm = true
+
+		for _, v := range values {
+			r.UrlValues.Set(v.Key, v.Value)
+		}
+
+		r.Header.Set("content-type", "application/x-www-form-urlencoded")
 	}
 }
 
