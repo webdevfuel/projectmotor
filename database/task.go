@@ -14,7 +14,7 @@ type Task struct {
 	Title       string           `db:"title"`
 	Description pgtype.Text      `db:"description"`
 	OwnerID     int32            `db:"owner_id"`
-	ProjectID   int32            `db:"project_id"`
+	ProjectID   pgtype.Int4      `db:"project_id"`
 	CreatedAt   pgtype.Timestamp `db:"created_at"`
 	UpdatedAt   pgtype.Timestamp `db:"updated_at"`
 }
