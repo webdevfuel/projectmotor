@@ -1,15 +1,15 @@
 package template
 
 import (
-	"github.com/webdevfuel/projectmotor/validator"
-	"github.com/webdevfuel/projectmotor/template/shared"
-	"github.com/webdevfuel/projectmotor/database"
 	"fmt"
+	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/template/modal"
+	"github.com/webdevfuel/projectmotor/template/shared"
+	"github.com/webdevfuel/projectmotor/validator"
 )
 
 templ TaskEditForm(task database.Task, errors validator.ValidatedSlice) {
-	<form hx-patch={ templ.EscapeString(fmt.Sprintf("/tasks/%d", task.ID)) } hx-swap="outerHTML">
+	<form id="task-form" hx-patch={ templ.EscapeString(fmt.Sprintf("/tasks/%d", task.ID)) } hx-swap="outerHTML">
 		@modal.ModalHeader() {
 			Edit task
 		}
