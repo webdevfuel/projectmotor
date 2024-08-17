@@ -29,3 +29,11 @@ INSERT INTO tasks (title, description, project_id, owner_id)
 INSERT INTO tasks (title, description, project_id, owner_id)
     VALUES ('Task 8', '', 4, 2);
 
+--> statement-breakpoint
+INSERT INTO tasks (title, description, owner_id)
+    VALUES ('Task 9', '', 1);
+
+--> statement-breakpoint
+INSERT INTO tasks (title, description, owner_id)
+    VALUES ('Task 10', '', 2);
+
