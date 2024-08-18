@@ -38,7 +38,7 @@ type CreateTaskForm struct {
 func (data CreateTaskForm) Validate() error {
 	return validation.ValidateStruct(&data,
 		validation.Field(&data.Title, validation.Required, validation.Length(1, 255)),
-		validation.Field(&data.ProjectID, validation.Required, is.Digit),
+		validation.Field(&data.ProjectID, is.Digit),
 	)
 }
 
@@ -63,7 +63,7 @@ func (h *Handler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	projectID, err := util.Atoi32(data.ProjectID)
+	projectID, err := database.Int4FromString(data.ProjectID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return

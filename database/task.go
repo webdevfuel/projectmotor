@@ -35,7 +35,7 @@ func NewTaskService(db *sqlx.DB) *TaskService {
 // Create returns a Task and returns an error from the Get method.
 //
 // If successful, it inserts a new row into the "tasks" table with the given data.
-func (s *TaskService) Create(title string, description string, projectID int32, ownerID int32) error {
+func (s *TaskService) Create(title string, description string, projectID pgtype.Int4, ownerID int32) error {
 	var task Task
 	return s.db.Get(&task, `
 		INSERT INTO tasks (title, description, owner_id, project_id)
