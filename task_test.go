@@ -143,4 +143,151 @@ func TestTask(t *testing.T) {
 		assert.Equal("Updated Task 1", doc.Find("div p").Text())
 		assert.Equal("Edit", doc.Find("div button").Text())
 	})
+
+	t.Run("navigating to tasks new page shows form", func(t *testing.T) {
+		req := test.NewRequest(
+			test.WithUrl(fmt.Sprintf("%s/%s", server.URL, "tasks/new")),
+			test.WithAuthentication(test.Authenticated, cookie),
+		)
+		res := test.Do(req)
+		doc := test.Doc(res)
+		assert := assert.New(t)
+
+		// status code assertions
+		assert.Equal(200, res.StatusCode)
+
+		// form assertions
+		form := test.NewForm(doc, "task-form")
+
+		title := form.MustGetFieldByID("title")
+		assert.Equal("", title.Value)
+		assert.Equal("Title (required)", title.Label)
+
+		description := form.MustGetFieldByID("description")
+		assert.Equal("", description.Value)
+		assert.Equal("Description", description.Label)
+
+		projects := []string{}
+		project := form.MustGetSelectByID("project_id")
+		for _, option := range project.Options {
+			if option.Value == "" {
+				if !option.Selected {
+					assert.Fail("empty value should be selected by default")
+				}
+			} else {
+				projects = append(projects, option.Label)
+			}
+		}
+		assert.Equal([]string{"Project 2", "Project 1"}, projects)
+
+		assert.Equal(1, test.FindByText(doc, "button", "New task").Size())
+	})
+
+	t.Run("new task returns form with errors", func(t *testing.T) {
+		req := test.NewRequest(
+			test.WithUrl(fmt.Sprintf("%s/%s", server.URL, "tasks")),
+			test.WithAuthentication(test.Authenticated, cookie),
+			test.WithMethod(test.Post),
+		)
+		res := test.Do(req)
+		doc := test.Doc(res)
+		assert := assert.New(t)
+
+		// status code assertions
+		assert.Equal(200, res.StatusCode)
+
+		// form assertions
+		form := test.NewForm(doc, "task-form")
+
+		title := form.MustGetFieldByID("title")
+		assert.Equal("Title (required)", title.Label)
+		assert.Equal("", title.Value)
+		assert.Equal("cannot be blank", title.Error)
+
+		description := form.MustGetFieldByID("description")
+		assert.Equal("Description", description.Label)
+		assert.Equal("", description.Value)
+		assert.Equal("", description.Error)
+
+		project := form.MustGetSelectByID("project_id")
+		assert.Equal("Project", project.Label)
+		assert.Equal("", project.Error)
+		for _, option := range project.Options {
+			if option.Selected {
+				assert.Equal("", option.Value)
+			}
+		}
+
+		assert.Equal(1, test.FindByText(doc, "button", "New task").Size())
+	})
+
+	t.Run("new task without project redirects to '/tasks'", func(t *testing.T) {
+		req := test.NewRequest(
+			test.WithUrl(fmt.Sprintf("%s/%s", server.URL, "tasks")),
+			test.WithAuthentication(test.Authenticated, cookie),
+			test.WithMethod(test.Post),
+			test.WithFormValues(
+				test.FormValue{
+					Key:   "title",
+					Value: "Task 999",
+				},
+				test.FormValue{
+					Key:   "description",
+					Value: "",
+				},
+				test.FormValue{
+					Key:   "project_id",
+					Value: "",
+				},
+			),
+		)
+		res := test.Do(req)
+		assert := assert.New(t)
+
+		// status code assertions
+		assert.Equal(200, res.StatusCode)
+
+		// redirection assertions
+		assert.Equal("http://localhost:3000/tasks", res.Header.Get("Hx-Redirect"))
+
+		// db assertions
+		var count int
+		handler.DB.Get(&count, "select count(*) from tasks where title = 'Task 999' and project_id is null")
+		assert.Equal(1, count)
+	})
+
+	t.Run("new task with project redirects to '/tasks'", func(t *testing.T) {
+		req := test.NewRequest(
+			test.WithUrl(fmt.Sprintf("%s/%s", server.URL, "tasks")),
+			test.WithAuthentication(test.Authenticated, cookie),
+			test.WithMethod(test.Post),
+			test.WithFormValues(
+				test.FormValue{
+					Key:   "title",
+					Value: "Task 123",
+				},
+				test.FormValue{
+					Key:   "description",
+					Value: "",
+				},
+				test.FormValue{
+					Key:   "project_id",
+					Value: "1",
+				},
+			),
+		)
+		res := test.Do(req)
+		assert := assert.New(t)
+
+		// status code assertions
+		assert.Equal(200, res.StatusCode)
+
+		// redirection assertions
+		assert.Equal("http://localhost:3000/tasks", res.Header.Get("Hx-Redirect"))
+
+		// db assertions
+		var count int
+		handler.DB.Get(&count, "select count(*) from tasks where title = 'Task 123' and project_id = 1")
+		assert.Equal(1, count)
+	})
 }
