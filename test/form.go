@@ -9,7 +9,8 @@ import (
 
 // A Form is a representation of a HTML form element, with a slice of fields.
 type Form struct {
-	Fields []*Field
+	Fields  []*Field
+	Selects []*Select
 }
 
 // A Field is a representation of multiple HTML elements commonly used in the
@@ -22,15 +23,31 @@ type Field struct {
 	Error string
 }
 
+// A Select is a representation of select HTML element, including a label and span (error).
+type Select struct {
+	ID      string
+	Name    string
+	Options []*Option
+	Label   string
+	Error   string
+}
+
+// A Option is a representation of option HTML element.
+type Option struct {
+	Value    string
+	Label    string
+	Selected bool
+	Disabled bool
+}
+
 // NewForm returns a Form. It parses the provided goquery.Document and finds
 // all fields within a form element with provided id.
 func NewForm(doc *goquery.Document, fid string) *Form {
 	fields := []*Field{}
 
-	inputSelector := fmt.Sprintf(`form[id="%s"] input`, fid)
-	textareaSelector := fmt.Sprintf(`form[id="%s"] textarea`, fid)
+	selects := []*Select{}
 
-	doc.Find(inputSelector).Each(func(_ int, s *goquery.Selection) {
+	doc.Find(fmt.Sprintf(`form[id="%s"] input`, fid)).Each(func(_ int, s *goquery.Selection) {
 		id := s.AttrOr("id", "")
 		name := s.AttrOr("name", "")
 		value := s.AttrOr("value", "")
@@ -49,7 +66,7 @@ func NewForm(doc *goquery.Document, fid string) *Form {
 		})
 	})
 
-	doc.Find(textareaSelector).Each(func(_ int, s *goquery.Selection) {
+	doc.Find(fmt.Sprintf(`form[id="%s"] textarea`, fid)).Each(func(_ int, s *goquery.Selection) {
 		id := s.AttrOr("id", "")
 		name := s.AttrOr("name", "")
 		value := s.Text()
@@ -68,8 +85,43 @@ func NewForm(doc *goquery.Document, fid string) *Form {
 		})
 	})
 
+	doc.Find(fmt.Sprintf(`form[id="%s"] select`, fid)).Each(func(_ int, s *goquery.Selection) {
+		id := s.AttrOr("id", "")
+		name := s.AttrOr("name", "")
+
+		lb := labelSelector(id)
+		label := doc.Find(lb).Text()
+
+		n := s.Next()
+
+		options := []*Option{}
+
+		s.Find("option").Each(func(_ int, s *goquery.Selection) {
+			value := s.AttrOr("value", "")
+			label := s.Text()
+			_, selected := s.Attr("selected")
+			_, disabled := s.Attr("disabled")
+
+			options = append(options, &Option{
+				Value:    value,
+				Label:    label,
+				Selected: selected,
+				Disabled: disabled,
+			})
+		})
+
+		selects = append(selects, &Select{
+			ID:      id,
+			Name:    name,
+			Label:   label,
+			Options: options,
+			Error:   n.Text(),
+		})
+	})
+
 	return &Form{
-		Fields: fields,
+		Fields:  fields,
+		Selects: selects,
 	}
 }
 
@@ -95,13 +147,36 @@ func (form *Form) GetFieldByID(id string) (bool, *Field) {
 
 // MustGetFieldByID returns a Field by the provided id and panics if it's not found.
 func (form *Form) MustGetFieldByID(id string) *Field {
-	for _, f := range form.Fields {
-		if f.ID == id {
-			return f
+	var f *Field
+
+	for _, cf := range form.Fields {
+		if cf.ID == id {
+			f = cf
+			break
 		}
 	}
 
-	log.Panic("field with id must be found")
+	if f == nil {
+		log.Panic("field with id must be found")
+	}
 
-	return &Field{}
+	return f
+}
+
+// MustGetSelectByID returns a Select by the provided id and panics if it's not found.
+func (form *Form) MustGetSelectByID(id string) *Select {
+	var s *Select
+
+	for _, cs := range form.Selects {
+		if cs.ID == id {
+			s = cs
+			break
+		}
+	}
+
+	if s == nil {
+		log.Panic("field with id must be found")
+	}
+
+	return s
 }
