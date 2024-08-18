@@ -1,14 +1,14 @@
 package template
 
 import (
-	"github.com/webdevfuel/projectmotor/validator"
-	"github.com/webdevfuel/projectmotor/template/shared"
 	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/shared"
+	"github.com/webdevfuel/projectmotor/validator"
 	"strconv"
 )
 
 templ TaskNewForm(errors validator.ValidatedSlice, projects []database.Project) {
-	<form class="mt-6 space-y-4" hx-post="/tasks" hx-swap="outerHTML">
+	<form id="task-form" class="mt-6 space-y-4" hx-post="/tasks" hx-swap="outerHTML">
 		<div>
 			<label for="title" class="label">Title (required)</label>
 			<input type="text" value={ errors.GetByKey("Title").Value } id="title" name="title" class="input"/>
@@ -22,7 +22,7 @@ templ TaskNewForm(errors validator.ValidatedSlice, projects []database.Project) 
 		<div>
 			<label for="project_id" class="label">Project</label>
 			<select id="project_id" name="project_id" class="py-3 px-4 pe-9 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600">
-				<option selected disabled>Select a project...</option>
+				<option value="" selected>No project</option>
 				for _, project := range projects {
 					<option selected?={ errors.GetByKey("ProjectID").Value == strconv.FormatInt(int64(project.ID), 10) } value={ strconv.FormatInt(int64(project.ID), 10) }>{ project.Title }</option>
 				}
