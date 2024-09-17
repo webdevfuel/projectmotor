@@ -4,7 +4,7 @@ go 1.21.5
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
-	github.com/a-h/templ v0.2.747
+	github.com/a-h/templ v0.2.778
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/go-playground/form v3.1.4+incompatible
@@ -27,10 +27,10 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/net v0.24.0 // indirect
-	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
