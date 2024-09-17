@@ -70,12 +70,21 @@ func WithFieldError(error string) func(*Field) {
 	}
 }
 
-func WithFieldDefaultValue(errorValue, defaultValue string) func(*Field) {
+func WithFieldDefaultValue(values ...string) func(*Field) {
 	return func(f *Field) {
-		if f.Error != "" {
-			f.DefaultValue = errorValue
-		} else {
-			f.DefaultValue = defaultValue
+		if len(values) == 1 {
+			f.DefaultValue = values[0]
+		}
+
+		if len(values) == 2 {
+			errorValue := values[0]
+			defaultValue := values[1]
+
+			if errorValue != "" || f.Error != "" {
+				f.DefaultValue = errorValue
+			} else {
+				f.DefaultValue = defaultValue
+			}
 		}
 	}
 }
