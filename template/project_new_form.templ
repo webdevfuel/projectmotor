@@ -12,6 +12,7 @@ templ ProjectNewForm(errors validator.ValidatedSlice) {
 				shared.WithFieldID("title"),
 				shared.WithFieldLabel("Title"),
 				shared.WithFieldError(errors.GetByKey("Title").Error),
+				shared.WithFieldDefaultValue(errors.GetByKey("Title").Value),
 			)
 		</div>
 		<div>
@@ -20,6 +21,7 @@ templ ProjectNewForm(errors validator.ValidatedSlice) {
 				shared.WithFieldID("description"),
 				shared.WithFieldLabel("Description"),
 				shared.WithFieldError(errors.GetByKey("Description").Error),
+				shared.WithFieldDefaultValue(errors.GetByKey("Description").Value),
 			)
 		</div>
 		@shared.NewButton(shared.WithButtonType(shared.ButtonSubmit)) {
