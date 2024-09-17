@@ -8,14 +8,19 @@ import (
 templ ProjectNewForm(errors validator.ValidatedSlice) {
 	<form id="project-form" class="mt-6 space-y-4" hx-post="/projects" hx-swap="outerHTML">
 		<div>
-			<label for="title" class="label">Title (required)</label>
-			<input type="text" value={ errors.GetByKey("Title").Value } id="title" name="title" class="input"/>
-			<span class="error">{ errors.GetByKey("Title").Error }</span>
+			@shared.NewField(
+				shared.WithFieldID("title"),
+				shared.WithFieldLabel("Title"),
+				shared.WithFieldError(errors.GetByKey("Title").Error),
+			)
 		</div>
 		<div>
-			<label for="description" class="label">Description</label>
-			<textarea id="description" name="description" class="input">{ errors.GetByKey("Description").Value }</textarea>
-			<span class="error">{ errors.GetByKey("Description").Error }</span>
+			@shared.NewField(
+				shared.WithFieldAs(shared.FieldAsTextarea),
+				shared.WithFieldID("description"),
+				shared.WithFieldLabel("Description"),
+				shared.WithFieldError(errors.GetByKey("Description").Error),
+			)
 		</div>
 		@shared.NewButton(shared.WithButtonType(shared.ButtonSubmit)) {
 			New project

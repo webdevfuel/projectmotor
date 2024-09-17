@@ -20,30 +20,21 @@ func NewProjectEditFormOpts() ProjectEditFormOpts {
 templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice, opts ProjectEditFormOpts) {
 	<form id="project-form" class="mt-6 space-y-4" hx-patch={ templ.EscapeString(fmt.Sprintf("/projects/%d", project.ID)) } hx-swap="outerHTML">
 		<div>
-			<label for="title" class="label">Title (required)</label>
-			<input
-				id="title"
-				type="text"
-				name="title"
-				class="input"
-				if errors.GetByKey("Title").Error != "" {
-					value={ errors.GetByKey("Title").Value }
-				} else {
-					value={ project.Title }
-				}
-			/>
-			<span class="error">{ errors.GetByKey("Title").Error }</span>
+			@shared.NewField(
+				shared.WithFieldID("title"),
+				shared.WithFieldLabel("Title"),
+				shared.WithFieldError(errors.GetByKey("Title").Error),
+				shared.WithFieldDefaultValue(errors.GetByKey("Title").Value, project.Title),
+			)
 		</div>
 		<div>
-			<label for="description" class="label">Description</label>
-			<textarea id="description" name="description" class="input">
-				if errors.GetByKey("Description").Error != "" {
-					{ errors.GetByKey("Description").Value }
-				} else {
-					{ project.Description.String }
-				}
-			</textarea>
-			<span class="error">{ errors.GetByKey("Description").Error }</span>
+			@shared.NewField(
+				shared.WithFieldAs(shared.FieldAsTextarea),
+				shared.WithFieldID("description"),
+				shared.WithFieldLabel("Description"),
+				shared.WithFieldError(errors.GetByKey("Description").Error),
+				shared.WithFieldDefaultValue(errors.GetByKey("Description").Value, project.Description.String),
+			)
 		</div>
 		<div class="flex items-center justify-between">
 			@shared.NewButton(shared.WithButtonType(shared.ButtonSubmit)) {
