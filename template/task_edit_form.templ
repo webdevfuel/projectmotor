@@ -16,30 +16,21 @@ templ TaskEditForm(task database.Task, errors validator.ValidatedSlice) {
 		@modal.ModalBody() {
 			<div class="space-y-4">
 				<div>
-					<label for="title" class="label">Title (required)</label>
-					<input
-						id="title"
-						type="text"
-						name="title"
-						class="input"
-						if errors.GetByKey("Title").Error != "" {
-							value={ errors.GetByKey("Title").Value }
-						} else {
-							value={ task.Title }
-						}
-					/>
-					<span class="error">{ errors.GetByKey("Title").Error }</span>
+					@shared.NewField(
+						shared.WithFieldID("title"),
+						shared.WithFieldLabel("Title"),
+						shared.WithFieldError(errors.GetByKey("Title").Error),
+						shared.WithFieldDefaultValue(errors.GetByKey("Title").Value, task.Title),
+					)
 				</div>
 				<div>
-					<label for="description" class="label">Description</label>
-					<textarea id="description" name="description" class="input">
-						if errors.GetByKey("Description").Error != "" {
-							{ errors.GetByKey("Description").Value }
-						} else {
-							{ task.Description.String }
-						}
-					</textarea>
-					<span class="error">{ errors.GetByKey("Description").Error }</span>
+					@shared.NewField(
+						shared.WithFieldAs(shared.FieldAsTextarea),
+						shared.WithFieldID("description"),
+						shared.WithFieldLabel("Description"),
+						shared.WithFieldError(errors.GetByKey("Description").Error),
+						shared.WithFieldDefaultValue(errors.GetByKey("Description").Value, task.Description.String),
+					)
 				</div>
 			</div>
 		}
