@@ -1,0 +1,110 @@
+package shared
+
+import (
+	"context"
+	"io"
+)
+
+type FieldAs int
+
+const (
+	FieldAsInput FieldAs = iota
+	FieldAsTextarea
+)
+
+type Field struct {
+	ID           string
+	Type         string
+	Label        string
+	Error        string
+	Disabled     bool
+	DefaultValue string
+	Attributes   templ.Attributes
+	As           FieldAs
+}
+
+func NewField(opts ...func(*Field)) *Field {
+	f := &Field{
+		ID:           "",
+		Type:         "text",
+		Label:        "",
+		Error:        "",
+		Disabled:     false,
+		DefaultValue: "",
+		Attributes:   templ.Attributes{},
+		As:           FieldAsInput,
+	}
+	for _, o := range opts {
+		o(f)
+	}
+	return f
+}
+
+func WithFieldAs(as FieldAs) func(*Field) {
+	return func(f *Field) {
+		f.As = as
+	}
+}
+
+func WithFieldID(id string) func(*Field) {
+	return func(f *Field) {
+		f.ID = id
+	}
+}
+
+func WithFieldType(typ string) func(*Field) {
+	return func(f *Field) {
+		f.Type = typ
+	}
+}
+
+func WithFieldLabel(label string) func(*Field) {
+	return func(f *Field) {
+		f.Label = label
+	}
+}
+
+func WithFieldError(error string) func(*Field) {
+	return func(f *Field) {
+		f.Error = error
+	}
+}
+
+func WithFieldDefaultValue(errorValue, defaultValue string) func(*Field) {
+	return func(f *Field) {
+		if f.Error != "" {
+			f.DefaultValue = errorValue
+		} else {
+			f.DefaultValue = defaultValue
+		}
+	}
+}
+
+func WithFieldAttribute(k string, v any) func(*Field) {
+	return func(f *Field) {
+		f.Attributes[k] = v
+	}
+}
+
+func WithFieldDisabled(disabled bool) func(*Field) {
+	return func(f *Field) {
+		f.Disabled = disabled
+	}
+}
+
+func (f *Field) Render(ctx context.Context, w io.Writer) error {
+	return field(f).Render(ctx, w)
+}
+
+templ field(f *Field) {
+	<label for={ f.ID } class="block text-sm font-medium mb-2 dark:text-white">{ f.Label }</label>
+	if f.As == FieldAsInput {
+		<input id={ f.ID } name={ f.ID } class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600" type={ f.Type } value={ f.DefaultValue }/>
+	}
+	if f.As == FieldAsTextarea {
+		<textarea id={ f.ID } name={ f.ID } class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600">{ f.DefaultValue }</textarea>
+	}
+	if f.Error != "" {
+		<span class="text-sm text-red-600">{ f.Error }</span>
+	}
+}
