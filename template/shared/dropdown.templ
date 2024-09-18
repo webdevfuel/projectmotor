@@ -37,19 +37,42 @@ func (d *Dropdown) Render(ctx context.Context, w io.Writer) error {
 }
 
 templ dropdown(d *Dropdown) {
-	<div class="hs-dropdown hs-dropdown-example relative inline-flex">
+	<div class="relative inline-flex" x-data="{ open: false }">
 		<button
-			id="hs-dropdown-example"
+			@click="open = !open"
+			@click.outside="open = false"
 			type="button"
-			class="hs-dropdown-toggle py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
+			class="py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800"
 			{ d.Attributes... }
 		>
 			{ d.Label }
-			<svg class="hs-dropdown-open:rotate-180 size-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<svg
+				class="size-4 text-gray-600"
+				:class="{ 'rotate-180': open }"
+				xmlns="http://www.w3.org/2000/svg"
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
 				<path d="m6 9 6 6 6-6"></path>
 			</svg>
 		</button>
-		<div class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 w-56 hidden z-10 mt-2 min-w-60 bg-white shadow-md rounded-lg p-2 dark:bg-gray-800 dark:border dark:border-gray-700 dark:divide-gray-700" aria-labelledby="hs-dropdown-example">
+		<div
+			x-transition:enter="transition ease-out duration-100"
+			x-transition:enter-start="opacity-0 -translate-y-2"
+			x-transition:enter-end="opacity-100 translate-y-0"
+			x-transition:leave="transition ease-in duration-100"
+			x-transition:leave-start="opacity-100 translate-y-0"
+			x-transition:leave-end="opacity-0 -translate-y-2"
+			x-cloak
+			x-show="open"
+			class="w-56 z-10 mt-2 min-w-60 bg-white shadow-md rounded-lg p-2 dark:bg-gray-800 dark:border dark:border-gray-700 dark:divide-gray-700 absolute top-full right-0"
+		>
 			{ children... }
 		</div>
 	</div>
