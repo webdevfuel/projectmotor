@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 
 	validation "github.com/go-ozzo/ozzo-validation"
@@ -93,7 +94,8 @@ func (h *Handler) ToggleProjectPublished(w http.ResponseWriter, r *http.Request)
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	component := template.ProjectStatus(project)
+	h.TriggerEvent(w, fmt.Sprintf("toggle-project-status:%d", project.ID))
+	component := template.ProjectStatusLabel(project.Published)
 	err = component.Render(r.Context(), w)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
