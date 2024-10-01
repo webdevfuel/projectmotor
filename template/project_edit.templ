@@ -1,8 +1,8 @@
 package template
 
 import (
-	"github.com/webdevfuel/projectmotor/template/layout"
 	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/layout"
 	"github.com/webdevfuel/projectmotor/validator"
 )
 
@@ -12,6 +12,7 @@ templ ProjectEdit(project database.Project) {
 			@ProjectTitle(project, NewProjectTitleOpts())
 			@ProjectStatus(project)
 		</div>
+		@ProjectTabs(project.ID, CurrentTabDetails)
 		@ProjectEditForm(project, validator.NewValidatedSlice(), NewProjectEditFormOpts())
 	}
 }
