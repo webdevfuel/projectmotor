@@ -1,6 +1,9 @@
 package database
 
 import (
+	"errors"
+
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jmoiron/sqlx"
 )
@@ -115,12 +118,16 @@ func (s ProjectService) Delete(projectID int32, ownerID int32) error {
 	return nil
 }
 
-func (s ProjectService) Share(projectId int32, userId int32) error {
+func (s ProjectService) Share(projectId int32, userId int32) (bool, error) {
 	_, err := s.db.Exec("insert into projects_users (project_id, user_id) values ($1, $2);", projectId, userId)
 	if err != nil {
-		return err
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return true, nil
+		}
+		return false, err
 	}
-	return nil
+	return false, nil
 }
 
 func (s ProjectService) Revoke(projectId int32, userId int32) error {

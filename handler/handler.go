@@ -2,16 +2,19 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	"github.com/webdevfuel/projectmotor/auth"
 	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/toast"
 )
 
 // A Handler interacts with the database and cookie store.
@@ -92,7 +95,8 @@ func (h *Handler) GetIDFromRequest(r *http.Request, key string) (int32, error) {
 // Error replies to the request with given HTTP code, and a status text given
 // the HTTP code, and prints the error messago to the console.
 func (h *Handler) Error(w http.ResponseWriter, err error, code int) {
-	http.Error(w, http.StatusText(code), code)
+	// http.Error(w, http.StatusText(code), code)
+	w.WriteHeader(code)
 	log.Println("error:", err)
 }
 
@@ -144,4 +148,40 @@ func (h *Handler) GetURLQuery(r *http.Request, key string) URLQuery {
 		Value:   value,
 		IsEmpty: value == "",
 	}
+}
+
+type handlerWithTemplate func(w http.ResponseWriter, r *http.Request) ([]templ.Component, int)
+
+// FragmentWrapper takes in a function similar to http.HandlerFunc, but returns
+// a slice of components and a status code
+func FragmentWrapper(h handlerWithTemplate) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		componets, statusCode := h(w, r)
+		for _, component := range componets {
+			component.Render(r.Context(), w)
+		}
+		w.WriteHeader(statusCode)
+	}
+}
+
+func genericErrorMessageToast(s *string) templ.Component {
+	var message string
+	if s == nil {
+		message = "Oops! There was an error."
+	} else {
+		message = fmt.Sprintf("Oops! %s", *s)
+	}
+	return toast.Toast(toast.ToastOpts{
+		Message: message,
+		Type:    "error",
+		SwapOOB: true,
+	})
+}
+
+func successMessageToast(s string) templ.Component {
+	return toast.Toast(toast.ToastOpts{
+		Message: s,
+		Type:    "success",
+		SwapOOB: true,
+	})
 }

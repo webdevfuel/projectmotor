@@ -32,7 +32,7 @@ templ ProjectShare(project database.Project, users []ProjectShareUser) {
 templ ProjectCurrentlyShared(projectId int32, users []ProjectShareUser) {
 	<div id="emails" class="mt-4">
 		<div class="last:flex hidden items-center justify-between bg-white border shadow-sm rounded-xl p-4 md:p-5 dark:bg-slate-800 dark:border-gray-700 mt-2">
-			<p class="dark:text-white">
+			<p class="dark:text-white text-sm">
 				Oops! It seems you haven't shared this project with anyone yet! 😔
 			</p>
 		</div>
@@ -56,7 +56,7 @@ templ ProjectCurrentlySharedRow(projectId int32, user ProjectShareUser, swapOob 
 			}
 			class="flex items-center justify-between bg-white border shadow-sm rounded-xl p-4 md:p-5 dark:bg-slate-800 dark:border-gray-700 mt-2"
 		>
-			<p class="dark:text-gray-300">{ user.Email }</p>
+			<p class="dark:text-gray-300 text-sm">{ user.Email }</p>
 			@shared.NewButton(
 				shared.WithButtonSize(shared.ButtonSm),
 				shared.WithButtonColor(shared.ButtonRed),

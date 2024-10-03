@@ -85,12 +85,22 @@ func (us UserService) GetUserByEmail(email string) (User, error) {
 	return user, nil
 }
 
-func (us UserService) MustGetUserByID(ID int32) (User, error) {
+func (us UserService) MustGetUserByID(id int32) (User, error) {
 	var user User
 	query := "select * from users where id = $1"
-	err := us.db.Get(&user, query, ID)
+	err := us.db.Get(&user, query, id)
 	if err != nil {
 		return User{}, err
 	}
 	return user, nil
+}
+
+func (us UserService) UserExists(email int32) (bool, error) {
+	var count int
+	query := "select count(*) from users where email = $1"
+	err := us.db.Get(&count, query, email)
+	if err != nil {
+		return false, err
+	}
+	return count != 0, nil
 }
