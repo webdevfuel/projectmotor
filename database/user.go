@@ -75,3 +75,13 @@ func (us UserService) GetSharedUsers(projectId int32) ([]User, error) {
 	return users, nil
 }
 
+func (us UserService) GetUserByEmail(email string) (User, error) {
+	var user User
+	query := "select * from users where email = $1"
+	err := us.db.Get(&user, query, email)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
