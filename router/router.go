@@ -33,6 +33,9 @@ func protectedRouter(h *handler.Handler) func(chi.Router) {
 		r.Post("/projects", h.CreateProject)
 		r.Get("/projects/new", h.NewProject)
 		r.Get("/projects/{id}/edit", h.EditProject)
+		r.Get("/projects/{id}/share", h.ShareProject)
+		r.Post("/projects/{id}/share", h.ShareProjectByEmail)
+		r.Delete("/projects/{projectId}/share/{userId}", h.RevokeProjectById)
 		r.Patch("/projects/{id}/toggle", h.ToggleProjectPublished)
 		r.Patch("/projects/{id}", h.UpdateProject)
 		r.Delete("/projects/{id}", h.DeleteProject)
@@ -75,8 +78,12 @@ func protectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
 			// check if userID type is int32
 			if userID, ok := userID.(int32); ok {
 				// check if user exists in DB
-				user, _, err := h.UserService.GetUserByID(userID)
+				user, exists, err := h.UserService.GetUserByID(userID)
 				if err != nil {
+					redirectToLogin(w, r)
+					return
+				}
+				if !exists {
 					redirectToLogin(w, r)
 					return
 				}
