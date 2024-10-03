@@ -114,3 +114,19 @@ func (s ProjectService) Delete(projectID int32, ownerID int32) error {
 	}
 	return nil
 }
+
+func (s ProjectService) Share(projectId int32, userId int32) error {
+	_, err := s.db.Exec("insert into projects_users (project_id, user_id) values ($1, $2);", projectId, userId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s ProjectService) Revoke(projectId int32, userId int32) error {
+	_, err := s.db.Exec("delete from projects_users where project_id = $1 and user_id = $2;", projectId, userId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
