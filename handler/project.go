@@ -149,6 +149,13 @@ func (h *Handler) ShareProjectByEmail(w http.ResponseWriter, r *http.Request) ([
 		}, http.StatusInternalServerError
 	}
 	user, err := h.UserService.GetUserByEmail(data.Email)
+	if owner.ID == user.ID {
+		message := "It's not possible to share a project with yourself."
+		return []templ.Component{
+			projectShareFormComponent,
+			genericErrorMessageToast(&message),
+		}, http.StatusInternalServerError
+	}
 	if err != nil {
 		message := "We couldn't find a user with the email address you provided."
 		return []templ.Component{
