@@ -65,3 +65,13 @@ func (us UserService) CreateUser(tx *sqlx.Tx, email string) (User, error) {
 	}
 	return user, nil
 }
+
+func (us UserService) GetSharedUsers(projectId int32) ([]User, error) {
+	var users []User
+	err := us.db.Select(&users, "select users.* from projects_users left join users on projects_users.user_id = users.id where projects_users.project_id = $1", projectId)
+	if err != nil {
+		return []User{}, err
+	}
+	return users, nil
+}
+
