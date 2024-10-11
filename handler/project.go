@@ -236,7 +236,7 @@ func (h *Handler) ShareProjectByEmail(w http.ResponseWriter, r *http.Request) er
 	}
 	projectShareFormComponent := template.ProjectShareForm(projectId, errors)
 	if !ok {
-		return h.RenderComponents(w, r, http.StatusInternalServerError)
+		return h.RenderComponents(w, r, http.StatusInternalServerError, projectShareFormComponent)
 	}
 	owner := h.GetUserFromContext(r.Context())
 	project, err := h.ProjectService.Get(projectId, owner.ID)
