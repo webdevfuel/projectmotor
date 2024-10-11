@@ -87,30 +87,6 @@ func (h *Handler) EditProject(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) ShareProject(w http.ResponseWriter, r *http.Request) {
-	user := h.GetUserFromContext(r.Context())
-	id, _ := h.GetIDFromRequest(r, "id")
-	project, err := h.ProjectService.Get(id, user.ID)
-	if err != nil {
-		h.Error(w, err, http.StatusInternalServerError)
-		return
-	}
-	users, err := h.UserService.GetSharedUsers(id)
-	if err != nil {
-		h.Error(w, err, http.StatusInternalServerError)
-		return
-	}
-	var u []template.ProjectShareUser
-	for _, user := range users {
-		u = append(u, template.ProjectShareUser{
-			ID:    user.ID,
-			Email: user.Email,
-		})
-	}
-	component := template.ProjectShare(project, u)
-	component.Render(r.Context(), w)
-}
-
 func (h *Handler) ToggleProjectPublished(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	id, _ := h.GetIDFromRequest(r, "id")
@@ -212,6 +188,30 @@ func (h *Handler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 	h.Redirect(w, "http://localhost:3000/projects")
 }
 
+func (h *Handler) ShareProject(w http.ResponseWriter, r *http.Request) {
+	user := h.GetUserFromContext(r.Context())
+	id, _ := h.GetIDFromRequest(r, "id")
+	project, err := h.ProjectService.Get(id, user.ID)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	users, err := h.UserService.GetSharedUsers(id)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	var u []template.ProjectShareUser
+	for _, user := range users {
+		u = append(u, template.ProjectShareUser{
+			ID:    user.ID,
+			Email: user.Email,
+		})
+	}
+	component := template.ProjectShare(project, u)
+	component.Render(r.Context(), w)
+}
+
 type ShareProjectByEmailForm struct {
 	Email  string `form:"email"`
 	Notify bool   `form:"notify"`
@@ -236,7 +236,7 @@ func (h *Handler) ShareProjectByEmail(w http.ResponseWriter, r *http.Request) er
 	}
 	projectShareFormComponent := template.ProjectShareForm(projectId, errors)
 	if !ok {
-		return h.RenderComponents(w, r, http.StatusInternalServerError, projectShareFormComponent)
+		return h.RenderComponents(w, r, http.StatusBadRequest, projectShareFormComponent)
 	}
 	owner := h.GetUserFromContext(r.Context())
 	project, err := h.ProjectService.Get(projectId, owner.ID)
@@ -250,15 +250,6 @@ func (h *Handler) ShareProjectByEmail(w http.ResponseWriter, r *http.Request) er
 		)
 	}
 	user, err := h.UserService.GetUserByEmail(data.Email)
-	if owner.ID == user.ID {
-		return h.RenderComponents(
-			w,
-			r,
-			http.StatusInternalServerError,
-			projectShareFormComponent,
-			errorToastComponent("It's not possible to share a project with yourself."),
-		)
-	}
 	if err != nil {
 		return h.RenderComponents(
 			w,
@@ -266,6 +257,15 @@ func (h *Handler) ShareProjectByEmail(w http.ResponseWriter, r *http.Request) er
 			http.StatusInternalServerError,
 			projectShareFormComponent,
 			errorToastComponent("We couldn't find a user with the email address you provided."),
+		)
+	}
+	if owner.ID == user.ID {
+		return h.RenderComponents(
+			w,
+			r,
+			http.StatusInternalServerError,
+			projectShareFormComponent,
+			errorToastComponent("It's not possible to share a project with yourself."),
 		)
 	}
 	exists, err := h.ProjectService.Share(project.ID, user.ID)
