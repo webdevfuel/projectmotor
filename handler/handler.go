@@ -187,7 +187,7 @@ func errorToastComponent(s string) templ.Component {
 	if s == "" {
 		message = "Oops! There was an error."
 	} else {
-		message = fmt.Sprintf("Oops! %s", *s)
+		message = fmt.Sprintf("Oops! %s", s)
 	}
 	return toast.Toast(toast.ToastOpts{
 		Message: message,
