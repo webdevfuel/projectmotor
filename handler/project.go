@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/a-h/templ"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/webdevfuel/projectmotor/template"
@@ -112,123 +111,6 @@ func (h *Handler) ShareProject(w http.ResponseWriter, r *http.Request) {
 	component.Render(r.Context(), w)
 }
 
-type ShareProjectByEmailForm struct {
-	Email  string `form:"email"`
-	Notify bool   `form:"notify"`
-}
-
-func (data ShareProjectByEmailForm) Validate() error {
-	return validation.ValidateStruct(&data,
-		validation.Field(&data.Email, validation.Required, is.Email),
-		validation.Field(&data.Notify),
-	)
-}
-
-func (h *Handler) ShareProjectByEmail(w http.ResponseWriter, r *http.Request) ([]templ.Component, int) {
-	var data ShareProjectByEmailForm
-	ok, errors, err := validator.Validate(&data, r)
-	if err != nil {
-		return []templ.Component{}, http.StatusInternalServerError
-	}
-	projectId, err := h.GetIDFromRequest(r, "id")
-	if err != nil {
-		return []templ.Component{}, http.StatusInternalServerError
-	}
-	projectShareFormComponent := template.ProjectShareForm(projectId, errors)
-	if !ok {
-		return []templ.Component{
-			projectShareFormComponent,
-		}, http.StatusInternalServerError
-	}
-	owner := h.GetUserFromContext(r.Context())
-	project, err := h.ProjectService.Get(projectId, owner.ID)
-	if err != nil {
-		return []templ.Component{
-			projectShareFormComponent,
-			genericErrorMessageToast(nil),
-		}, http.StatusInternalServerError
-	}
-	user, err := h.UserService.GetUserByEmail(data.Email)
-	if owner.ID == user.ID {
-		message := "It's not possible to share a project with yourself."
-		return []templ.Component{
-			projectShareFormComponent,
-			genericErrorMessageToast(&message),
-		}, http.StatusInternalServerError
-	}
-	if err != nil {
-		message := "We couldn't find a user with the email address you provided."
-		return []templ.Component{
-			projectShareFormComponent,
-			genericErrorMessageToast(&message),
-		}, http.StatusInternalServerError
-	}
-	exists, err := h.ProjectService.Share(project.ID, user.ID)
-	if exists {
-		message := "The user with the email address you provided already has access to the project."
-		return []templ.Component{
-			projectShareFormComponent,
-			genericErrorMessageToast(&message),
-		}, http.StatusInternalServerError
-
-	}
-	if err != nil {
-		return []templ.Component{
-			projectShareFormComponent,
-			genericErrorMessageToast(nil),
-		}, http.StatusInternalServerError
-	}
-	return []templ.Component{
-		projectShareFormComponent,
-		template.ProjectCurrentlySharedRow(projectId, template.ProjectShareUser{
-			ID:    user.ID,
-			Email: user.Email,
-		}, true),
-		toast.Toast(toast.ToastOpts{
-			Message: "Project shared successfully.",
-			Type:    "success",
-			SwapOOB: true,
-		}),
-	}, http.StatusCreated
-}
-
-func (h *Handler) RevokeProjectById(w http.ResponseWriter, r *http.Request) ([]templ.Component, int) {
-	projectId, err := h.GetIDFromRequest(r, "projectId")
-	if err != nil {
-		return []templ.Component{
-			genericErrorMessageToast(nil),
-		}, http.StatusInternalServerError
-	}
-	userId, err := h.GetIDFromRequest(r, "userId")
-	if err != nil {
-		return []templ.Component{
-			genericErrorMessageToast(nil),
-		}, http.StatusInternalServerError
-	}
-	owner := h.GetUserFromContext(r.Context())
-	project, err := h.ProjectService.Get(projectId, owner.ID)
-	if err != nil {
-		return []templ.Component{
-			genericErrorMessageToast(nil),
-		}, http.StatusInternalServerError
-	}
-	user, err := h.UserService.MustGetUserByID(userId)
-	if err != nil {
-		return []templ.Component{
-			genericErrorMessageToast(nil),
-		}, http.StatusInternalServerError
-	}
-	err = h.ProjectService.Revoke(project.ID, user.ID)
-	if err != nil {
-		return []templ.Component{
-			genericErrorMessageToast(nil),
-		}, http.StatusInternalServerError
-	}
-	return []templ.Component{
-		successMessageToast("Project unshared successfully."),
-	}, http.StatusInternalServerError
-}
-
 func (h *Handler) ToggleProjectPublished(w http.ResponseWriter, r *http.Request) {
 	user := h.GetUserFromContext(r.Context())
 	id, _ := h.GetIDFromRequest(r, "id")
@@ -324,4 +206,81 @@ func (h *Handler) DeleteProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.Redirect(w, "http://localhost:3000/projects")
+}
+
+type ShareProjectByEmailForm struct {
+	Email  string `form:"email"`
+	Notify bool   `form:"notify"`
+}
+
+func (data ShareProjectByEmailForm) Validate() error {
+	return validation.ValidateStruct(&data,
+		validation.Field(&data.Email, validation.Required, is.Email),
+		validation.Field(&data.Notify),
+	)
+}
+
+func (h *Handler) ShareProjectByEmail(w http.ResponseWriter, r *http.Request) error {
+	var data ShareProjectByEmailForm
+	ok, errors, err := validator.Validate(&data, r)
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError)
+	}
+	projectId, err := h.GetIDFromRequest(r, "id")
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError)
+	}
+	projectShareFormComponent := template.ProjectShareForm(projectId, errors)
+	if !ok {
+		return h.RenderComponents(w, r, http.StatusInternalServerError)
+	}
+	owner := h.GetUserFromContext(r.Context())
+	project, err := h.ProjectService.Get(projectId, owner.ID)
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, projectShareFormComponent, defaultErrorToastComponent())
+	}
+	user, err := h.UserService.GetUserByEmail(data.Email)
+	if owner.ID == user.ID {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, projectShareFormComponent, errorToastComponent("It's not possible to share a project with yourself."))
+	}
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, projectShareFormComponent, errorToastComponent("We couldn't find a user with the email address you provided."))
+	}
+	exists, err := h.ProjectService.Share(project.ID, user.ID)
+	if exists {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, projectShareFormComponent, errorToastComponent("The user with the email address you provided already has access to the project."))
+
+	}
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, projectShareFormComponent, defaultErrorToastComponent())
+	}
+	return h.RenderComponents(w, r, http.StatusCreated, projectShareFormComponent, template.ProjectCurrentlySharedRow(projectId, template.ProjectShareUser{
+		ID:    user.ID,
+		Email: user.Email,
+	}, true), successToastComponent("Project shared successfully."))
+}
+
+func (h *Handler) RevokeProjectById(w http.ResponseWriter, r *http.Request) error {
+	projectId, err := h.GetIDFromRequest(r, "projectId")
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, defaultErrorToastComponent())
+	}
+	userId, err := h.GetIDFromRequest(r, "userId")
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, defaultErrorToastComponent())
+	}
+	owner := h.GetUserFromContext(r.Context())
+	project, err := h.ProjectService.Get(projectId, owner.ID)
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, defaultErrorToastComponent())
+	}
+	user, err := h.UserService.MustGetUserByID(userId)
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, defaultErrorToastComponent())
+	}
+	err = h.ProjectService.Revoke(project.ID, user.ID)
+	if err != nil {
+		return h.RenderComponents(w, r, http.StatusInternalServerError, defaultErrorToastComponent())
+	}
+	return h.RenderComponents(w, r, http.StatusOK, successToastComponent("Project unshared successfully."))
 }

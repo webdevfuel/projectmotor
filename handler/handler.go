@@ -150,23 +150,36 @@ func (h *Handler) GetURLQuery(r *http.Request, key string) URLQuery {
 	}
 }
 
-type handlerWithTemplate func(w http.ResponseWriter, r *http.Request) ([]templ.Component, int)
-
-// FragmentWrapper takes in a function similar to http.HandlerFunc, but returns
-// a slice of components and a status code
-func FragmentWrapper(h handlerWithTemplate) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		componets, statusCode := h(w, r)
-		for _, component := range componets {
-			component.Render(r.Context(), w)
+// RenderComponents renders a list of components and sets the status code on the response
+func (h *Handler) RenderComponents(w http.ResponseWriter, r *http.Request,  statusCode int, ...components []templ.Component) error {
+	for _, component := range components {
+		err := component.Render(r.Context(), w)
+		if err != nil {
+			return err
 		}
-		w.WriteHeader(statusCode)
+	}
+	w.WriteHeader(statusCode)
+	return nil
+}
+
+type handlerWithError func(w http.ResponseWriter, r *http.Request) error
+
+func ErrorWrapper(h handlerWithError) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := h(w, r)
+		if err != nil {
+			log.Printf("error: %v", err)
+		}
 	}
 }
 
-func genericErrorMessageToast(s *string) templ.Component {
+func defaultErrorToastComponent() templ.Component {
+	return errorToastComponent("")
+}
+
+func errorToastComponent(s string) templ.Component {
 	var message string
-	if s == nil {
+	if s == "" {
 		message = "Oops! There was an error."
 	} else {
 		message = fmt.Sprintf("Oops! %s", *s)
@@ -178,7 +191,7 @@ func genericErrorMessageToast(s *string) templ.Component {
 	})
 }
 
-func successMessageToast(s string) templ.Component {
+func successToastComponent(s string) templ.Component {
 	return toast.Toast(toast.ToastOpts{
 		Message: s,
 		Type:    "success",
