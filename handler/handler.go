@@ -174,6 +174,7 @@ func ErrorWrapper(h handlerWithError) http.HandlerFunc {
 		err := h(w, r)
 		if err != nil {
 			log.Printf("error: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}
 }
