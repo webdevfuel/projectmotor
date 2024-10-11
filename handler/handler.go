@@ -151,7 +151,12 @@ func (h *Handler) GetURLQuery(r *http.Request, key string) URLQuery {
 }
 
 // RenderComponents renders a list of components and sets the status code on the response
-func (h *Handler) RenderComponents(w http.ResponseWriter, r *http.Request,  statusCode int, ...components []templ.Component) error {
+func (h *Handler) RenderComponents(
+	w http.ResponseWriter,
+	r *http.Request,
+	statusCode int,
+	components ...templ.Component,
+) error {
 	for _, component := range components {
 		err := component.Render(r.Context(), w)
 		if err != nil {
