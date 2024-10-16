@@ -63,28 +63,31 @@ func protectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			session, err := h.GetSessionStore(r)
-			// redirect in case of error
+			// redirect in case of error fetching session from store
 			if err != nil {
 				redirectToLogin(w, r)
 				return
 			}
-			userID := session.Values["userID"]
-			// redirect in case of missing user
-			if userID == nil {
+			token := session.Values["token"]
+			// redirect in case of missig token
+			if token == nil {
 				redirectToLogin(w, r)
 				return
 			}
 			ctx := r.Context()
-			// check if userID type is int32
-			if userID, ok := userID.(int32); ok {
-				// check if user exists in DB
-				user, _, err := h.UserService.GetUserByID(userID)
-				if err != nil {
-					redirectToLogin(w, r)
-					return
-				}
-				ctx = context.WithValue(ctx, auth.UserKey{}, user)
+			// ensure token type is string
+			tokenStr, ok := token.(string)
+			if !ok {
+				redirectToLogin(w, r)
+				return
 			}
+			// check if user with token exists in DB
+			user, err := h.UserService.GetUserBySessionToken(tokenStr)
+			if err != nil {
+				redirectToLogin(w, r)
+				return
+			}
+			ctx = context.WithValue(ctx, auth.UserKey{}, user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 		return http.HandlerFunc(fn)

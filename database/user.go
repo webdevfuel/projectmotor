@@ -16,10 +16,11 @@ import (
 //
 // table: "users"
 type User struct {
-	ID     int32       `json:"id"`
-	Name   pgtype.Text `json:"name"`
-	Email  string      `json:"email"`
-	Avatar pgtype.Text `json:"avatar"`
+	ID                int32
+	Name              pgtype.Text
+	Email             string
+	GitHubAccessToken string `db:"gh_access_token"`
+	GitHubUserID      int32  `db:"gh_user_id"`
 }
 
 // A UserService is a connection to the database with methods
@@ -56,10 +57,30 @@ func (us UserService) GetUserByID(ID int32) (User, bool, error) {
 // CreateUser returns a User and returns an error from the Get method.
 //
 // If successful, it inserts a new row into the "users" table with the given data.
-func (us UserService) CreateUser(tx *sqlx.Tx, email string) (User, error) {
+func (us UserService) CreateUser(
+	tx *sqlx.Tx,
+	email string,
+	ghAccessToken string,
+	ghUserId int32,
+) (User, error) {
 	var user User
-	query := "insert into users (email) values ($1) returning *"
-	err := tx.Get(&user, query, email)
+	query := "insert into users (email, gh_access_token, gh_user_id) values ($1, $2, $3) returning *"
+	err := tx.Get(&user, query, email, ghAccessToken, ghUserId)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
+func (us UserService) UpdateUser(
+	tx *sqlx.Tx,
+	email string,
+	ghAccessToken string,
+	ghUserId int32,
+) (User, error) {
+	var user User
+	query := "update users set email = $1, gh_access_token = $2 where gh_user_id = $3 returning *;"
+	err := tx.Get(&user, query, email, ghAccessToken, ghUserId)
 	if err != nil {
 		return User{}, err
 	}
@@ -68,7 +89,11 @@ func (us UserService) CreateUser(tx *sqlx.Tx, email string) (User, error) {
 
 func (us UserService) GetSharedUsers(projectId int32) ([]User, error) {
 	var users []User
-	err := us.db.Select(&users, "select users.* from projects_users left join users on projects_users.user_id = users.id where projects_users.project_id = $1", projectId)
+	err := us.db.Select(
+		&users,
+		"select users.* from projects_users left join users on projects_users.user_id = users.id where projects_users.project_id = $1",
+		projectId,
+	)
 	if err != nil {
 		return []User{}, err
 	}
@@ -103,4 +128,29 @@ func (us UserService) UserExists(email int32) (bool, error) {
 		return false, err
 	}
 	return count != 0, nil
+}
+
+func (us UserService) GetUserByGitHubID(gitHubUserId int32) (User, bool, error) {
+	var user User
+	err := us.db.Get(&user, "select * from users where gh_user_id = $1;", gitHubUserId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return User{}, false, nil
+		}
+		return User{}, false, err
+	}
+	return user, true, err
+}
+
+func (us UserService) GetUserBySessionToken(sessionToken string) (User, error) {
+	var user User
+	err := us.db.Get(
+		&user,
+		"select users.* from users left join sessions on users.id = sessions.user_id where sessions.token = $1;",
+		sessionToken,
+	)
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
 }

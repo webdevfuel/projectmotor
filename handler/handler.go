@@ -20,7 +20,7 @@ import (
 // A Handler interacts with the database and cookie store.
 type Handler struct {
 	UserService    *database.UserService
-	AccountService *database.AccountService
+	SessionService *database.SessionService
 	ProjectService *database.ProjectService
 	TaskService    *database.TaskService
 	Store          *sessions.CookieStore
@@ -37,14 +37,14 @@ type HandlerOptions struct {
 // NewHandler returns a new Handler.
 func NewHandler(options HandlerOptions) *Handler {
 	userService := database.NewUserService(options.DB)
-	accountService := database.NewAccountService(options.DB)
+	accountService := database.NewSessionService(options.DB)
 	projectService := database.NewProjectService(options.DB)
 	taskService := database.NewTaskService(options.DB)
 	return &Handler{
 		Store:          options.Store,
 		DB:             options.DB,
 		UserService:    userService,
-		AccountService: accountService,
+		SessionService: accountService,
 		ProjectService: projectService,
 		TaskService:    taskService,
 	}

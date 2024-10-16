@@ -8,7 +8,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/sessions"
+	"github.com/jmoiron/sqlx"
 	"github.com/webdevfuel/projectmotor/auth"
+	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/github"
 	"github.com/webdevfuel/projectmotor/template"
 )
@@ -49,67 +51,90 @@ func (h *Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	// Get state and code from url query (?state=foo&code=bar)
 	state := r.URL.Query().Get("state")
 	code := r.URL.Query().Get("code")
-	// Check if state matches between query and session
-	if stateMatches(state, session) {
-		// Exchange code for token
-		token, err := github.Config.Exchange(context.Background(), code)
-		if err != nil {
-			h.Error(w, err, http.StatusInternalServerError)
-			return
-		}
-		// Initialise github.GitHubOAuth2 instance
-		gh := github.NewGitHubOAuth2(token.AccessToken)
-		// Fetch data from GitHub's API
-		data, err := gh.GetData()
-		if err != nil {
-			h.Error(w, err, http.StatusInternalServerError)
-			return
-		}
-		// Check if account with ID exists
-		account, exists, err := h.AccountService.GetAccountByID(data.ID)
-		if err != nil {
-			h.Error(w, err, http.StatusInternalServerError)
-			return
-		}
-		if !exists {
-			// Begin transaction
-			tx, err := h.BeginTx(r.Context())
-			defer tx.Rollback()
-			if err != nil {
-				h.Error(w, err, http.StatusInternalServerError)
-				return
-			}
-			// Create user within transaction
-			user, err := h.UserService.CreateUser(tx, data.PrimaryEmail)
-			if err != nil {
-				h.Error(w, err, http.StatusInternalServerError)
-				return
-			}
-			// Create account within transaction
-			_, err = h.AccountService.CreateAccount(tx, data.ID, user.ID, token.AccessToken)
-			if err != nil {
-				h.Error(w, err, http.StatusInternalServerError)
-				return
-			}
-			// Commit transaction
-			err = tx.Commit()
-			if err != nil {
-				h.Error(w, err, http.StatusInternalServerError)
-				return
-			}
-			err = auth.SetUserSession(w, r, user.ID, session)
-			if err != nil {
-				h.Error(w, err, http.StatusInternalServerError)
-			}
-		}
-		err = auth.SetUserSession(w, r, account.UserID, session)
-		if err != nil {
-			h.Error(w, err, http.StatusInternalServerError)
-			return
-		}
+	// Ensure state matches between query and session
+	if !stateMatches(state, session) {
+		h.Error(w, errors.New("session and query state mismatch"), http.StatusBadRequest)
 		return
 	}
-	h.Error(w, errors.New("session and query state mismatch"), http.StatusUnauthorized)
+	// Exchange code for token
+	token, err := github.Config.Exchange(context.Background(), code)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	// Initialise github.GitHubOAuth2 instance
+	gh := github.NewGitHubOAuth2(token.AccessToken)
+	// Fetch data from GitHub's API
+	data, err := gh.GetData()
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	// Get user and check if user already exists
+	_, exists, err := h.UserService.GetUserByGitHubID(data.ID)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	// Begin transaction
+	tx, err := h.BeginTx(r.Context())
+	defer tx.Rollback()
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	// Create or update user access token and email
+	user, err := createOrUpdateUser(
+		tx,
+		exists,
+		data.PrimaryEmail,
+		token.AccessToken,
+		data.ID,
+		h.UserService,
+	)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	// Generate a random token to use as session identifier
+	sessionToken, err := auth.GenerateSessionToken()
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	// Create session
+	err = h.SessionService.CreateToken(tx, user.ID, sessionToken)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	// Commit transaction
+	err = tx.Commit()
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	// Set session on cookies with token
+	err = auth.SetUserSession(w, r, sessionToken, session)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func createOrUpdateUser(
+	tx *sqlx.Tx,
+	exists bool,
+	primaryEmail string,
+	accessToken string,
+	id int32,
+	userService *database.UserService,
+) (database.User, error) {
+	if exists {
+		return userService.UpdateUser(tx, primaryEmail, accessToken, id)
+	}
+	return userService.CreateUser(tx, primaryEmail, accessToken, id)
 }
 
 func generateCSRFToken(n int) (string, error) {
