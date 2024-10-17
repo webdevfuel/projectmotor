@@ -136,7 +136,7 @@ func (us UserService) UserExistsByGitHubID(gitHubUserId int32) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return count != 0, err
+	return count != 0, nil
 }
 
 func (us UserService) GetUserBySessionToken(sessionToken string) (User, error) {
