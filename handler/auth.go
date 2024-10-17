@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/hex"
 	"errors"
 	"net/http"
@@ -59,7 +60,12 @@ func (h *Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 	// Exchange code for token
 	token, err := github.Config.Exchange(context.Background(), code)
 	if err != nil {
-		h.Error(w, err, http.StatusInternalServerError)
+		h.Error(w, err, http.StatusBadRequest)
+		return
+	}
+	// Ensure token is valid
+	if !token.Valid() {
+		h.Error(w, err, http.StatusBadRequest)
 		return
 	}
 	// Initialise github.GitHubOAuth2 instance
@@ -151,5 +157,9 @@ func stateMatches(s string, session *sessions.Session) bool {
 	if state == nil {
 		return false
 	}
-	return s == state
+	stateStr, ok := state.(string)
+	if !ok {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(s), []byte(stateStr)) == 1
 }
