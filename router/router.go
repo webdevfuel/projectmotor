@@ -19,6 +19,7 @@ func NewRouter(h *handler.Handler) *chi.Mux {
 	r.Get("/login", h.Login)
 	r.Get("/oauth/github/login", h.OAuthGitHubLogin)
 	r.Get("/oauth/github/callback", h.OAuthGitHubCallback)
+	r.Post("/logout", h.DeleteSession)
 	r.Group(protectedRouter(h))
 	return r
 }

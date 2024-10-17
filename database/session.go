@@ -46,3 +46,14 @@ func (ss SessionService) CreateToken(tx *sqlx.Tx, userId int32, token string) er
 	}
 	return nil
 }
+
+func (ss SessionService) DeleteToken(token string) error {
+	_, err := ss.db.Exec(
+		"delete from sessions where token = $1;",
+		token,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
