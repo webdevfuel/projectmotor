@@ -7,7 +7,7 @@ import (
 )
 
 type Session struct {
-	ID     string `db:"id"`
+	ID     int32  `db:"id"`
 	UserID int32  `db:"user_id"`
 	Token  string `db:"token"`
 }
