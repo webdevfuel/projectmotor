@@ -7,6 +7,9 @@ CREATE TABLE "users" (
 );
 
 --> statement-breakpoint
+CREATE UNIQUE INDEX users_email_idx ON users (email);
+
+--> statement-breakpoint
 CREATE TABLE "sessions" (
     "id" serial PRIMARY KEY,
     "token" text NOT NULL,
