@@ -37,14 +37,14 @@ type HandlerOptions struct {
 // NewHandler returns a new Handler.
 func NewHandler(options HandlerOptions) *Handler {
 	userService := database.NewUserService(options.DB)
-	accountService := database.NewSessionService(options.DB)
+	sessionService := database.NewSessionService(options.DB)
 	projectService := database.NewProjectService(options.DB)
 	taskService := database.NewTaskService(options.DB)
 	return &Handler{
 		Store:          options.Store,
 		DB:             options.DB,
 		UserService:    userService,
-		SessionService: accountService,
+		SessionService: sessionService,
 		ProjectService: projectService,
 		TaskService:    taskService,
 	}
