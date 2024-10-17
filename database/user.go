@@ -130,16 +130,13 @@ func (us UserService) UserExists(email int32) (bool, error) {
 	return count != 0, nil
 }
 
-func (us UserService) GetUserByGitHubID(gitHubUserId int32) (User, bool, error) {
-	var user User
-	err := us.db.Get(&user, "select * from users where gh_user_id = $1;", gitHubUserId)
+func (us UserService) UserExistsByGitHubID(gitHubUserId int32) (bool, error) {
+	var count int
+	err := us.db.Get(&count, "select count(*) from users where gh_user_id = $1;", gitHubUserId)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return User{}, false, nil
-		}
-		return User{}, false, err
+		return false, err
 	}
-	return user, true, err
+	return count != 0, err
 }
 
 func (us UserService) GetUserBySessionToken(sessionToken string) (User, error) {

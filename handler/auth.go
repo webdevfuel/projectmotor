@@ -76,8 +76,8 @@ func (h *Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	// Get user and check if user already exists
-	_, exists, err := h.UserService.GetUserByGitHubID(data.ID)
+	// Check if user already exists
+	exists, err := h.UserService.UserExistsByGitHubID(data.ID)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
