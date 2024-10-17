@@ -35,7 +35,7 @@ func SetUserSession(
 }
 
 func GenerateSessionToken() (string, error) {
-	b := make([]byte, 128)
+	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	if err != nil {
 		return "", err
