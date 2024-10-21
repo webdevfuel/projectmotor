@@ -19,7 +19,6 @@ func NewRouter(h *handler.Handler) *chi.Mux {
 	r.Get("/login", h.Login)
 	r.Get("/oauth/github/login", h.OAuthGitHubLogin)
 	r.Get("/oauth/github/callback", h.OAuthGitHubCallback)
-	r.Delete("/logout", h.DeleteSession)
 	r.Group(protectedRouter(h))
 	return r
 }
@@ -30,6 +29,7 @@ func NewRouter(h *handler.Handler) *chi.Mux {
 func protectedRouter(h *handler.Handler) func(chi.Router) {
 	return func(r chi.Router) {
 		r.Use(protectedCtx(h))
+		r.Delete("/logout", h.DeleteSession)
 		r.Get("/projects", h.GetProjects)
 		r.Post("/projects", h.CreateProject)
 		r.Get("/projects/new", h.NewProject)
@@ -64,30 +64,27 @@ func protectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			session, err := h.GetSessionStore(r)
-			// redirect in case of error fetching session from store
+			// redirect in case of error
 			if err != nil {
 				redirectToLogin(w, r)
 				return
 			}
 			token := session.Values["token"]
-			// redirect in case of missig token
+			// redirect in case of missing token
 			if token == nil {
 				redirectToLogin(w, r)
 				return
 			}
-			// ensure token type is string
 			tokenStr, ok := token.(string)
 			if !ok {
 				redirectToLogin(w, r)
 				return
 			}
-			// check if user with token exists in DB
 			user, err := h.UserService.GetUserBySessionToken(tokenStr)
 			if err != nil {
 				redirectToLogin(w, r)
 				return
 			}
-			// set user on context
 			ctx := context.WithValue(r.Context(), auth.UserKey{}, user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
