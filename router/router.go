@@ -75,7 +75,6 @@ func protectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
 				redirectToLogin(w, r)
 				return
 			}
-			ctx := r.Context()
 			// ensure token type is string
 			tokenStr, ok := token.(string)
 			if !ok {
@@ -88,7 +87,8 @@ func protectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
 				redirectToLogin(w, r)
 				return
 			}
-			ctx = context.WithValue(ctx, auth.UserKey{}, user)
+			// set user on context
+			ctx := context.WithValue(r.Context(), auth.UserKey{}, user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 		return http.HandlerFunc(fn)
