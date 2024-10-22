@@ -161,30 +161,15 @@ func stateMatches(s string, session *sessions.Session) bool {
 	if !ok {
 		return false
 	}
-	return subtle.ConstantTimeCompare([]byte(s), []byte(stateStr)) == 1
+	return secureCompare(s, stateStr)
 }
 
-func (h *Handler) DeleteSession(w http.ResponseWriter, r *http.Request) {
-	sess, err := h.GetSessionStore(r)
-	if err != nil {
-		h.Error(w, err, http.StatusInternalServerError)
-		return
+func secureCompare(given string, actual string) bool {
+	givenLen := int32(len(given))
+	actualLen := int32(len(actual))
+	if subtle.ConstantTimeEq(givenLen, actualLen) == 1 {
+		return subtle.ConstantTimeCompare([]byte(given), []byte(actual)) == 1
+	} else {
+		return subtle.ConstantTimeCompare([]byte(actual), []byte(actual)) == 1 && false
 	}
-	tok, ok := sess.Values["token"].(string)
-	if !ok {
-		h.Error(w, err, http.StatusInternalServerError)
-		return
-	}
-	err = h.SessionService.DeleteToken(tok)
-	if err != nil {
-		h.Error(w, err, http.StatusInternalServerError)
-		return
-	}
-	delete(sess.Values, "token")
-	err = sess.Save(r, w)
-	if err != nil {
-		h.Error(w, err, http.StatusInternalServerError)
-		return
-	}
-	h.Redirect(w, "http://localhost:3000/login")
 }
