@@ -114,14 +114,14 @@ func (h *Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	// Commit transaction
-	err = tx.Commit()
+	// Set session on cookies with token
+	err = auth.SetUserSession(w, r, sessionToken, session)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
-	// Set session on cookies with token
-	err = auth.SetUserSession(w, r, sessionToken, session)
+	// Commit transaction
+	err = tx.Commit()
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
