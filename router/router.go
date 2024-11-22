@@ -30,6 +30,7 @@ func protectedRouter(h *handler.Handler) func(chi.Router) {
 	return func(r chi.Router) {
 		r.Use(protectedCtx(h))
 		r.Delete("/logout", h.DeleteSession)
+		r.Delete("/logout/all", h.DeleteAllSessions)
 		r.Get("/projects", h.GetProjects)
 		r.Post("/projects", h.CreateProject)
 		r.Get("/projects/new", h.NewProject)
@@ -46,6 +47,7 @@ func protectedRouter(h *handler.Handler) func(chi.Router) {
 		r.Get("/tasks/{id}/edit", h.EditTask)
 		r.Patch("/tasks/{id}", h.UpdateTask)
 		r.Get("/tasks/{id}", h.GetTask)
+		r.Get("/profile", h.Profile)
 		r.Get("/", h.Dashboard)
 	}
 }

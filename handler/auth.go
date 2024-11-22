@@ -14,6 +14,7 @@ import (
 	"github.com/webdevfuel/projectmotor/database"
 	"github.com/webdevfuel/projectmotor/github"
 	"github.com/webdevfuel/projectmotor/template"
+	"github.com/webdevfuel/projectmotor/template/toast"
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -108,8 +109,14 @@ func (h *Handler) OAuthGitHubCallback(w http.ResponseWriter, r *http.Request) {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
 	}
+	// Get User-Agent from request headers
+	userAgent := r.Header.Get("User-Agent")
+	if userAgent == "" {
+		h.Error(w, errors.New("user-agent header must be present"), http.StatusInternalServerError)
+		return
+	}
 	// Create session
-	err = h.SessionService.CreateToken(tx, user.ID, sessionToken)
+	err = h.SessionService.CreateToken(tx, user.ID, sessionToken, userAgent)
 	if err != nil {
 		h.Error(w, err, http.StatusInternalServerError)
 		return
@@ -197,4 +204,30 @@ func (h *Handler) DeleteSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.Redirect(w, "http://localhost:3000/login")
+}
+
+func (h *Handler) DeleteAllSessions(w http.ResponseWriter, r *http.Request) {
+	sess, err := h.GetSessionStore(r)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	tok, ok := sess.Values["token"].(string)
+	if !ok {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	user := h.GetUserFromContext(r.Context())
+	err = h.SessionService.DeleteAllTokens(user.ID, tok)
+	if err != nil {
+		h.Error(w, err, http.StatusInternalServerError)
+		return
+	}
+	h.TriggerEvent(w, "clearSessions")
+	component := toast.Toast(toast.ToastOpts{
+		Message: "Logged out of all sessions successfully.",
+		Type:    "success",
+		SwapOOB: true,
+	})
+	component.Render(r.Context(), w)
 }
