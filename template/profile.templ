@@ -1,0 +1,50 @@
+package template
+
+import (
+	"fmt"
+	"github.com/mileusna/useragent"
+	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/layout"
+	"github.com/webdevfuel/projectmotor/template/shared"
+)
+
+templ Profile(sessions []database.Session, token string) {
+	@layout.Dashboard() {
+		<h1 class="dark:text-white text-3xl font-bold">Profile</h1>
+		<div class="mt-4">
+			<p class="dark:text-white text-lg font-bold">Log out of all sessions</p>
+			<p class="dark:text-white/80">Click the button below to log out of all other sessions that you're currently logged in with. You won't be logged out of the current session.</p>
+			<div class="mt-2">
+				@shared.NewButton(
+					shared.WithButtonSize(shared.ButtonSm),
+					shared.WithButtonAttribute("hx-delete", "/logout/all"),
+					shared.WithButtonAttribute("hx-swap", "none"),
+				) {
+					Log out
+				}
+			</div>
+		</div>
+		<div class="mt-8 space-y-4">
+			for _, session := range sessions {
+				<div class="flex items-center justify-between border border-gray-200 dark:border-gray-700 w-full p-4 rounded-lg shadow-md" data-session?={ session.Token != token }>
+					<p class="dark:text-white">{ device(session.UserAgent) }</p>
+					if session.Token == token {
+						<p class="dark:text-white text-sm">Current Session</p>
+					}
+				</div>
+			}
+		</div>
+		<script>
+			document.body.addEventListener("clearSessions", function (evt) {
+				for (const el of document.querySelectorAll("div[data-session]")) {
+					el.remove();
+				}
+			})
+		</script>
+	}
+}
+
+func device(s string) string {
+	ua := useragent.Parse(s)
+	return fmt.Sprintf("%s - %s %s", ua.OS, ua.Name, ua.VersionNoShort())
+}
