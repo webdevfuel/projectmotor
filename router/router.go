@@ -8,7 +8,6 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gorilla/csrf"
 	"github.com/webdevfuel/projectmotor/auth"
-	"github.com/webdevfuel/projectmotor/form"
 	"github.com/webdevfuel/projectmotor/handler"
 )
 
@@ -16,9 +15,8 @@ import (
 func NewRouter(h *handler.Handler) *chi.Mux {
 	r := chi.NewRouter()
 	csrfMiddleware := csrf.Protect([]byte("32-byte-long-auth-key"))
-	r.Use(middleware.Logger)
 	r.Use(csrfMiddleware)
-	r.Use(csrfContext)
+	r.Use(middleware.Logger)
 	fs := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 	r.Get("/login", h.Login)
@@ -97,11 +95,4 @@ func protectedCtx(h *handler.Handler) func(next http.Handler) http.Handler {
 		}
 		return http.HandlerFunc(fn)
 	}
-}
-
-func csrfContext(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), form.CSRFKey{}, csrf.Token(r))
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }
