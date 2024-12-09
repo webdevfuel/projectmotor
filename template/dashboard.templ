@@ -1,9 +1,13 @@
 package template
 
-import "github.com/webdevfuel/projectmotor/template/layout"
+import (
+	"github.com/webdevfuel/projectmotor/form"
+	"github.com/webdevfuel/projectmotor/template/layout"
+)
 
 templ Dashboard(message string) {
 	@layout.Dashboard() {
-		<p>{  message  }</p>
+		<p>{  message }</p>
+		<p>{  ctx.Value(form.CSRFKey{}).(string) }</p>
 	}
 }
