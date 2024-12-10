@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"github.com/webdevfuel/projectmotor/template/csrf"
 	"github.com/webdevfuel/projectmotor/template/shared"
 	"github.com/webdevfuel/projectmotor/validator"
 )
@@ -14,7 +15,7 @@ templ ProjectShareForm(projectId int32, errors validator.ValidatedSlice) {
 		hx-indicator="find #spinner"
 		class="flex flex-col bg-white border shadow-sm rounded-xl p-4 md:p-5 dark:bg-slate-800 dark:border-gray-700 mt-4"
 	>
-		@CSRF()
+		@csrf.CSRF()
 		@shared.NewField(
 			shared.WithFieldID("email"),
 			shared.WithFieldLabel("Email Address"),

@@ -3,6 +3,7 @@ package template
 import (
 	"fmt"
 	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/csrf"
 	"github.com/webdevfuel/projectmotor/template/shared"
 	"github.com/webdevfuel/projectmotor/validator"
 )
@@ -19,7 +20,7 @@ func NewProjectEditFormOpts() ProjectEditFormOpts {
 
 templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice, opts ProjectEditFormOpts) {
 	<form id="project-form" class="mt-6 space-y-4" hx-patch={ templ.EscapeString(fmt.Sprintf("/projects/%d", project.ID)) } hx-swap="outerHTML">
-		@CSRF()
+		@csrf.CSRF()
 		<div>
 			@shared.NewField(
 				shared.WithFieldID("title"),
@@ -44,6 +45,7 @@ templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice,
 			@shared.NewButton(
 				shared.WithButtonColor(shared.ButtonRed),
 				shared.WithButtonAttribute("hx-delete", fmt.Sprintf("/projects/%d", project.ID)),
+				shared.WithButtonAttribute("hx-headers", fmt.Sprintf(`{"X-CSRF-Token": "%s"}`, csrf.CSRFHeader(ctx))),
 			) {
 				Delete project
 			}

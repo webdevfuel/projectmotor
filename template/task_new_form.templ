@@ -2,6 +2,7 @@ package template
 
 import (
 	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/csrf"
 	"github.com/webdevfuel/projectmotor/template/shared"
 	"github.com/webdevfuel/projectmotor/validator"
 	"strconv"
@@ -9,7 +10,7 @@ import (
 
 templ TaskNewForm(errors validator.ValidatedSlice, projects []database.Project) {
 	<form id="task-form" class="mt-6 space-y-4" hx-post="/tasks" hx-swap="outerHTML">
-		@CSRF()
+		@csrf.CSRF()
 		<div>
 			@shared.NewField(
 				shared.WithFieldID("title"),

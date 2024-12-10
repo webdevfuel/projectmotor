@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mileusna/useragent"
 	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/csrf"
 	"github.com/webdevfuel/projectmotor/template/layout"
 	"github.com/webdevfuel/projectmotor/template/shared"
 )
@@ -19,6 +20,7 @@ templ Profile(sessions []database.Session, token string) {
 					shared.WithButtonSize(shared.ButtonSm),
 					shared.WithButtonAttribute("hx-delete", "/logout/all"),
 					shared.WithButtonAttribute("hx-swap", "none"),
+					shared.WithButtonAttribute("hx-headers", fmt.Sprintf(`{"X-CSRF-Token": "%s"}`, csrf.CSRFHeader(ctx))),
 				) {
 					Log out
 				}

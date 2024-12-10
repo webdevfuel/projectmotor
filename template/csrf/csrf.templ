@@ -1,0 +1,11 @@
+package csrf
+
+import "context"
+
+templ CSRF() {
+	<input type="hidden" name="gorilla.csrf.Token" value={ ctx.Value("gorilla.csrf.Token").(string) }/>
+}
+
+func CSRFHeader(ctx context.Context) string {
+	return ctx.Value("gorilla.csrf.Token").(string)
+}

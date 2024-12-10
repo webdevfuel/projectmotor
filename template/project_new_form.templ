@@ -1,13 +1,14 @@
 package template
 
 import (
+	"github.com/webdevfuel/projectmotor/template/csrf"
 	"github.com/webdevfuel/projectmotor/template/shared"
 	"github.com/webdevfuel/projectmotor/validator"
 )
 
 templ ProjectNewForm(errors validator.ValidatedSlice) {
 	<form id="project-form" class="mt-6 space-y-4" hx-post="/projects" hx-swap="outerHTML">
-		@CSRF()
+		@csrf.CSRF()
 		<div>
 			@shared.NewField(
 				shared.WithFieldID("title"),
