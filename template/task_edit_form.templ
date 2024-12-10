@@ -10,6 +10,7 @@ import (
 
 templ TaskEditForm(task database.Task, errors validator.ValidatedSlice) {
 	<form id="task-form" hx-patch={ templ.EscapeString(fmt.Sprintf("/tasks/%d", task.ID)) } hx-swap="outerHTML">
+		@CSRF()
 		@modal.ModalHeader() {
 			Edit task
 		}

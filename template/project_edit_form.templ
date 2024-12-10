@@ -19,6 +19,7 @@ func NewProjectEditFormOpts() ProjectEditFormOpts {
 
 templ ProjectEditForm(project database.Project, errors validator.ValidatedSlice, opts ProjectEditFormOpts) {
 	<form id="project-form" class="mt-6 space-y-4" hx-patch={ templ.EscapeString(fmt.Sprintf("/projects/%d", project.ID)) } hx-swap="outerHTML">
+		@CSRF()
 		<div>
 			@shared.NewField(
 				shared.WithFieldID("title"),
