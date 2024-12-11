@@ -3,6 +3,7 @@ package template
 import (
 	"fmt"
 	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/csrf"
 	"github.com/webdevfuel/projectmotor/template/shared"
 )
 
@@ -12,6 +13,7 @@ templ ProjectStatus(project database.Project) {
 		shared.WithToggleChecked(project.Published),
 		shared.WithToggleURL(fmt.Sprintf("/projects/%d/toggle", project.ID)),
 		shared.WithToggleEvent(fmt.Sprintf("toggle-project-status:%d", project.ID)),
+		shared.WithToggleAttribute("hx-headers", fmt.Sprintf(`{"X-CSRF-Token": "%s"}`, csrf.CSRFHeader(ctx))),
 	) {
 		@ProjectStatusLabel(project.Published)
 	}

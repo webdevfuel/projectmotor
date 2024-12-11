@@ -53,6 +53,12 @@ func WithToggleEvent(event string) func(*Toggle) {
 	}
 }
 
+func WithToggleAttribute(k string, v any) func(*Toggle) {
+	return func(t *Toggle) {
+		t.Attributes[k] = v
+	}
+}
+
 templ toggle(t *Toggle) {
 	<div class="flex items-center" x-data>
 		<label for={ t.ID } class="text-sm text-gray-500 me-3 dark:text-gray-400">
