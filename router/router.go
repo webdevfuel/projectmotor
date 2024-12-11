@@ -2,7 +2,9 @@ package router
 
 import (
 	"context"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,7 +16,11 @@ import (
 // NewRouter returns a new chi.Mux router with all of the default middleware.
 func NewRouter(h *handler.Handler) *chi.Mux {
 	r := chi.NewRouter()
-	csrfMiddleware := csrf.Protect([]byte("32-byte-long-auth-key"))
+	csrfAuthKey := os.Getenv("CSRF_AUTH_KEY")
+	if csrfAuthKey == "" {
+		log.Fatal("CSRF_AUTH_KEY must be present")
+	}
+	csrfMiddleware := csrf.Protect([]byte(csrfAuthKey))
 	r.Use(csrfMiddleware)
 	r.Use(middleware.Logger)
 	fs := http.FileServer(http.Dir("./static"))
