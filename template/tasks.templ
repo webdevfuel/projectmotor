@@ -1,9 +1,10 @@
 package template
 
 import (
-	"github.com/webdevfuel/projectmotor/database"
-	"github.com/webdevfuel/projectmotor/template/layout"
 	"fmt"
+	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/empty"
+	"github.com/webdevfuel/projectmotor/template/layout"
 	"github.com/webdevfuel/projectmotor/template/shared"
 )
 
@@ -57,6 +58,14 @@ templ TasksColumns(tasks []database.Task, swapOOB bool) {
 		id="tasks"
 		hx-swap-oob?={ swapOOB }
 	>
+		<div class="last:block hidden">
+			@empty.Title() {
+				Ops! It seems you don't have any tasks yet.
+			}
+			@empty.Description() {
+				Click the "New task" button to create your first task or change the project filter.
+			}
+		</div>
 		for _, task := range tasks {
 			@TaskRow(task)
 		}

@@ -1,9 +1,10 @@
 package template
 
 import (
-	"github.com/webdevfuel/projectmotor/database"
-	"github.com/webdevfuel/projectmotor/template/layout"
 	"fmt"
+	"github.com/webdevfuel/projectmotor/database"
+	"github.com/webdevfuel/projectmotor/template/empty"
+	"github.com/webdevfuel/projectmotor/template/layout"
 	"github.com/webdevfuel/projectmotor/template/shared"
 )
 
@@ -19,6 +20,14 @@ templ Projects(projects []database.Project) {
 			}
 		</div>
 		<div class="mt-6 space-y-4">
+			<div class="last:block hidden">
+				@empty.Title() {
+					Ops! It seems you don't have any projects yet.
+				}
+				@empty.Description() {
+					Click the "New project" button to create your first project.
+				}
+			</div>
 			for _, project := range projects {
 				<div class="flex items-center justify-between border border-gray-200 dark:border-gray-700 w-full p-4 rounded-lg shadow-md">
 					<div class="flex items-center space-x-2.5">
