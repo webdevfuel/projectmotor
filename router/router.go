@@ -23,7 +23,11 @@ func NewRouter(h *handler.Handler) *chi.Mux {
 	csrfMiddleware := csrf.Protect([]byte(csrfAuthKey))
 	r.Use(csrfMiddleware)
 	r.Use(middleware.Logger)
-	fs := http.FileServer(http.Dir("./static"))
+	staticDir := os.Getenv("STATIC_DIR")
+	if staticDir == "" {
+		staticDir = "./static"
+	}
+	fs := http.FileServer(http.Dir(staticDir))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 	r.Get("/login", h.Login)
 	r.Get("/oauth/github/login", h.OAuthGitHubLogin)

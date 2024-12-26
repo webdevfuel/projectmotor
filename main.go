@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -33,5 +34,13 @@ func main() {
 		Store: store,
 	})
 	r := router.NewRouter(h)
-	http.ListenAndServe("localhost:3000", r)
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "localhost"
+	}
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), r)
 }
