@@ -1,22 +1,17 @@
-# fly.toml app configuration file generated for projectmotor on 2024-12-25T13:28:55+02:00
+# fly.toml app configuration file generated for projectmotor-hidden-dew-4544 on 2024-12-29T14:26:10+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'projectmotor'
+app = 'projectmotor-hidden-dew-4544'
 primary_region = 'otp'
 
 [build]
   [build.args]
-    GO_VERSION = '1.23.4'
-
-[deploy]
-  release_command = '/app/release.sh'
+    GO_VERSION = '1.21.5'
 
 [env]
   PORT = '8080'
-  HOST = '0.0.0.0'
-  STATIC_DIR = '/app/static'
 
 [http_service]
   internal_port = 8080
