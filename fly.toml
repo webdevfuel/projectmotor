@@ -8,10 +8,15 @@ primary_region = 'otp'
 
 [build]
   [build.args]
-    GO_VERSION = '1.21.5'
+    GO_VERSION = '1.23.4'
+
+[deploy]
+  release_command = '/app/release.sh'
 
 [env]
   PORT = '8080'
+  HOST = '0.0.0.0'
+  STATIC_DIR = '/app/static'
 
 [http_service]
   internal_port = 8080
