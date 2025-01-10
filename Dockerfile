@@ -7,7 +7,8 @@ RUN go mod download && go mod verify
 COPY . .
 
 # Install templ executable
-RUN go install github.com/a-h/templ/cmd/templ@latest
+ARG TEMPL_VERSION
+RUN go install github.com/a-h/templ/cmd/templ@v${TEMPL_VERSION}
 # Install migrate executable
 RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 # Generate templates
